@@ -21,3 +21,11 @@ test("English and German resource translations name the item", () => {
   assert.match(readText("resource_packs/windglider_rp/texts/en_US.lang"), /^item\.glider:glider=Wind Glider$/m);
   assert.match(readText("resource_packs/windglider_rp/texts/de_DE.lang"), /^item\.glider:glider=Windgleiter$/m);
 });
+
+test("behavior pack pins the matching resource pack version", () => {
+  const behavior = readJson("behavior_packs/windglider_bp/manifest.json");
+  const resources = readJson("resource_packs/windglider_rp/manifest.json");
+  const dependency = behavior.dependencies.find(({ uuid }) => uuid === resources.header.uuid);
+
+  assert.deepEqual(dependency?.version, resources.header.version);
+});

@@ -45,7 +45,12 @@ const behaviorManifest = json(join(behavior, "manifest.json"));
 const resourceManifest = json(join(resources, "manifest.json"));
 if (behaviorManifest?.header?.uuid !== "1a6c3b1e-8f2f-4eb6-8c27-4a5c2c4f6a11") errors.push("Behavior-Pack-UUID ist nicht stabil oder unerwartet.");
 if (resourceManifest?.header?.uuid !== "2f5fca49-f610-4b35-9fd1-2c7764b82c22") errors.push("Resource-Pack-UUID ist nicht stabil oder unerwartet.");
-if (!behaviorManifest?.dependencies?.some((dependency) => dependency.uuid === resourceManifest?.header?.uuid)) errors.push("Behavior Pack referenziert das Resource Pack nicht.");
+const resourceDependency = behaviorManifest?.dependencies?.find((dependency) => dependency.uuid === resourceManifest?.header?.uuid);
+if (!resourceDependency) {
+  errors.push("Behavior Pack referenziert das Resource Pack nicht.");
+} else if (resourceDependency.version?.join(".") !== resourceManifest?.header?.version?.join(".")) {
+  errors.push("Behavior Pack und Resource Pack haben unterschiedliche Versionen.");
+}
 if (!behaviorManifest?.dependencies?.some((dependency) => dependency.module_name === "@minecraft/server" && dependency.version === "2.0.0")) errors.push("Stabile @minecraft/server-2.0.0-Abhängigkeit fehlt.");
 
 for (const pack of [behavior, resources]) {
