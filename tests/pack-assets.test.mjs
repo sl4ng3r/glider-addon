@@ -56,3 +56,12 @@ test("both packs are cooperative and share the same release", () => {
   assert.deepEqual(behaviorDependency?.version, behavior.header.version);
   assert.equal(resources.header.pack_scope, "world");
 });
+
+test("package, pack and module versions stay in sync", () => {
+  const version = readJson("package.json").version;
+  for (const path of ["behavior_packs/windglider_bp/manifest.json", "resource_packs/windglider_rp/manifest.json"]) {
+    const pack = readJson(path);
+    assert.equal(pack.header.version.join("."), version);
+    for (const module of pack.modules) assert.equal(module.version.join("."), version);
+  }
+});
