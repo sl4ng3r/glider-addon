@@ -1,0 +1,9 @@
+{
+  "resource_pack_name": "windglider",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "wind_glider": {
+      "textures": "textures/items/wind_glider"
+    }
+  }
+}

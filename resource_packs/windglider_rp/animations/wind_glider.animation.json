@@ -1,0 +1,70 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.wind_glider.open": {
+      "animation_length": 1.0,
+      "loop": "hold_on_last_frame",
+      "bones": {
+        "root": {
+          "scale": {
+            "0.0": [0.08, 0.08, 0.08],
+            "1.0": [1.0, 1.0, 1.0]
+          }
+        },
+        "canopy": {
+          "rotation": {
+            "0.0": [0, 0, 0],
+            "1.0": [0, 0, 0]
+          }
+        }
+      }
+    },
+    "animation.wind_glider.close": {
+      "animation_length": 0.25,
+      "loop": "hold_on_last_frame",
+      "bones": {
+        "root": {
+          "scale": {
+            "0.0": [1.0, 1.0, 1.0],
+            "1.0": [0.08, 0.08, 0.08]
+          }
+        }
+      }
+    },
+    "animation.wind_glider.idle": {
+      "animation_length": 2.0,
+      "loop": true,
+      "bones": {
+        "canopy": {
+          "rotation": {
+            "0.0": [0, 0, -1.5],
+            "1.0": [0, 0, 1.5],
+            "2.0": [0, 0, -1.5]
+          }
+        }
+      }
+    },
+    "animation.wind_glider.hold_first_person": {
+      "animation_length": 1.0,
+      "loop": "hold_on_last_frame",
+      "bones": {
+        "root": {
+          "position": [2, -8, 1],
+          "rotation": [-24, -10, 8],
+          "scale": [0.42, 0.42, 0.42]
+        }
+      }
+    },
+    "animation.wind_glider.hold_third_person": {
+      "animation_length": 1.0,
+      "loop": "hold_on_last_frame",
+      "bones": {
+        "root": {
+          "position": [-1, -5, 1],
+          "rotation": [-18, 0, 0],
+          "scale": [0.55, 0.55, 0.55]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "glider:display",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/wind_glider"
+      },
+      "geometry": {
+        "default": "geometry.wind_glider.open"
+      },
+      "animations": {
+        "idle": "animation.wind_glider.idle",
+        "open": "animation.wind_glider.open",
+        "close": "animation.wind_glider.close"
+      },
+      "scripts": {
+        "animate": ["idle"]
+      },
+      "render_controllers": ["controller.render.wind_glider"]
+    }
+  }
+}

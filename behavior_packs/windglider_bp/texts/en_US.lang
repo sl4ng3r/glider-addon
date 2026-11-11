@@ -1,0 +1,5 @@
+item.glider.glider=Wind Glider
+pack.name=Wind Glider – Behavior
+pack.description=Automatic forward flight, gentle turns, and a one-second opening delay.
+windglider.hint=In the air: press Jump to open · press Jump again to close
+windglider.opening=Wind Glider opening

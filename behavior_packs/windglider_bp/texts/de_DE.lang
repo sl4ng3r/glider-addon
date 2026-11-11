@@ -1,0 +1,5 @@
+item.glider.glider=Windgleiter
+pack.name=Windgleiter – Spiellogik
+pack.description=Automatischer Vortrieb, sanfte Kurven und eine einsekündige Öffnungszeit.
+windglider.hint=In der Luft: Springen zum Öffnen · erneut Springen zum Schließen
+windglider.opening=Windgleiter öffnet
