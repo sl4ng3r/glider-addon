@@ -90,6 +90,7 @@ const requiredFiles = [
   join(behavior, "scripts", "main.js"),
   join(behavior, "scripts", "flight.js"),
   join(behavior, "scripts", "display.js"),
+  join(behavior, "scripts", "visual-state.js"),
   join(behavior, "entities", "glider_display.entity.json"),
   join(resources, "textures", "item_texture.json"),
   join(resources, "textures", "items", "wind_glider.png"),

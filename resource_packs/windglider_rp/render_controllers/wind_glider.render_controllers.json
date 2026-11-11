@@ -8,6 +8,7 @@
     },
     "controller.render.wind_glider_item": {
       "geometry": "Geometry.default",
+      "part_visibility": [{"root": "q.cooldown_time_remaining('windglider_visual') <= 0.0"}],
       "materials": [{"*": "Material.default"}],
       "textures": ["Texture.default"]
     }

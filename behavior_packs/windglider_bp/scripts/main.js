@@ -15,6 +15,7 @@ import {
 } from "./flight.js";
 import { updateGlidingPose } from "./player-pose.js";
 import { ensureDisplay, positionDisplay } from "./display.js";
+import { hideFoldedItem } from "./visual-state.js";
 
 const GLIDER_ITEM_ID = "glider:glider";
 const DISPLAY_ENTITY_ID = "glider:display";
@@ -228,6 +229,7 @@ function closeDisplay(record) {
 
 function endFlight(player, record) {
   updateGlidingPose(player, record, false);
+  hideFoldedItem(player, false);
   restoreMovement(player, record.state);
   stopSlowFalling(player, record.state);
   try {
@@ -288,7 +290,8 @@ function tickPlayer(player) {
     startGliding(player, record);
   }
   if (record.state.state === GLIDER_STATES.GLIDING) {
-    updateGlidingPose(player, record, true);
+    hideFoldedItem(player, true);
+    updateGlidingPose(player, record, true, (error) => console.warn(`[windglider] player pose failed: ${error}`));
     applyVelocity(player, result.velocity ?? { x: 0, y: 0, z: 0 });
     startSlowFalling(player, record.state);
     if (record.state.openingTicks % 30 === 0) playSound(player, "windglider.wind", 0.12);
@@ -301,7 +304,7 @@ function tickPlayer(player) {
     animationId: record.state.state === GLIDER_STATES.OPENING ? "animation.wind_glider.open" : undefined,
     onError: (error) => console.warn(`[windglider] display creation failed: ${error}`),
   });
-  positionDisplay(player, record, headingYaw(record.state.heading));
+  positionDisplay(player, record, headingYaw(record.state.heading), record.state.heading);
 }
 
 function cleanupOrphans() {

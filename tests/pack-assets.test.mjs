@@ -19,6 +19,15 @@ test("the item uses the namespaced icon key and localized item key", () => {
   assert.deepEqual(itemTexture.texture_data["glider:glider"].textures, "textures/items/wind_glider");
 });
 
+test("the folded hand model hides while the selected glider is in its visual cooldown", () => {
+  const item = readJson("behavior_packs/windglider_bp/items/glider.json")["minecraft:item"];
+  const controller = readJson("resource_packs/windglider_rp/render_controllers/wind_glider.render_controllers.json")
+    .render_controllers["controller.render.wind_glider_item"];
+  assert.equal(item.components["minecraft:cooldown"]?.category, "windglider_visual");
+  assert.ok(controller.part_visibility?.some((part) =>
+    part.root === "q.cooldown_time_remaining('windglider_visual') <= 0.0"));
+});
+
 test("English and German resource translations name the item", () => {
   assert.match(readText("resource_packs/windglider_rp/texts/en_US.lang"), /^item\.glider:glider=Wind Glider$/m);
   assert.match(readText("resource_packs/windglider_rp/texts/de_DE.lang"), /^item\.glider:glider=Windgleiter$/m);
@@ -79,6 +88,8 @@ test("the open sail has a visible span and the model texture is a UV atlas", () 
     - Math.min(...canopy.cubes.map(({ origin }) => origin[0]));
   assert.ok(span >= 48);
   assert.ok(new Set(canopy.cubes.map(({ origin }) => origin[1])).size >= 3, "the sail has a raised center and lower tips");
+  const handles = open.bones.find(({ name }) => name === "handles");
+  assert.ok(handles.cubes.every(({ origin }) => origin[1] >= 3), "the grips are close to raised hands");
   const texturePath = join(root, "resource_packs/windglider_rp/textures/entity/wind_glider.png");
   const png = readFileSync(texturePath);
   assert.equal(png.readUInt32BE(16), open.description.texture_width);

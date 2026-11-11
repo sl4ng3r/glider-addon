@@ -1,7 +1,8 @@
 // A short one-shot pose expires on its own after flight or a disconnect.
-export function updateGlidingPose(player, record, gliding) {
+export function updateGlidingPose(player, record, gliding, onError = () => {}) {
   if (!gliding) {
     record.glidingPoseTicks = 0;
+    record.glidingPoseErrorLogged = false;
     return;
   }
   const tick = record.glidingPoseTicks ?? 0;
@@ -9,7 +10,8 @@ export function updateGlidingPose(player, record, gliding) {
   if (tick % 4 !== 0) return;
   try {
     player.playAnimation("animation.wind_glider.player_glide", { blendOutTime: 0 });
-  } catch {
-    // A visual failure must not affect flight or other players.
+  } catch (error) {
+    if (!record.glidingPoseErrorLogged) onError(error);
+    record.glidingPoseErrorLogged = true;
   }
 }

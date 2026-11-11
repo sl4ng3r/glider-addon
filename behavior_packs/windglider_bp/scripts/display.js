@@ -1,4 +1,6 @@
 const RETRY_TICKS = 20;
+export const DISPLAY_Y_OFFSET = 1.6;
+export const DISPLAY_LEAD_DISTANCE = 0.3;
 
 export function ensureDisplay(player, record, { entityId, animationId, onError = () => {} }) {
   if (record.displayEntity?.isValid) return true;
@@ -12,7 +14,7 @@ export function ensureDisplay(player, record, { entityId, animationId, onError =
     const location = player.location;
     entity = player.dimension.spawnEntity(entityId, {
       x: location.x,
-      y: location.y + 1.8,
+      y: location.y + DISPLAY_Y_OFFSET,
       z: location.z,
     });
   } catch (error) {
@@ -36,7 +38,7 @@ export function ensureDisplay(player, record, { entityId, animationId, onError =
   return true;
 }
 
-export function positionDisplay(player, record, yaw, onError = () => {}) {
+export function positionDisplay(player, record, yaw, heading = { x: 0, z: 0 }, onError = () => {}) {
   const entity = record.displayEntity;
   if (!entity?.isValid) {
     record.displayEntity = undefined;
@@ -45,7 +47,11 @@ export function positionDisplay(player, record, yaw, onError = () => {}) {
   try {
     const location = player.location;
     entity.teleport(
-      { x: location.x, y: location.y + 1.8, z: location.z },
+      {
+        x: location.x + heading.x * DISPLAY_LEAD_DISTANCE,
+        y: location.y + DISPLAY_Y_OFFSET,
+        z: location.z + heading.z * DISPLAY_LEAD_DISTANCE,
+      },
       { rotation: { x: 0, y: yaw } },
     );
     return true;
