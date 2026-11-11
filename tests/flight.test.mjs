@@ -39,8 +39,9 @@ test("the first jump from the ground does not start the glider", () => {
 test("flight tuning and opening animation agree with the runtime pack", () => {
   assert.deepEqual(runtime.GLIDER_CONFIG, GLIDER_CONFIG);
   assert.equal(GLIDER_CONFIG.openingTicks, 6);
-  assert.equal(GLIDER_CONFIG.descentSpeed, 1.4 / 20);
-  assert.equal(GLIDER_CONFIG.maxTurnRate, 50 * Math.PI / 180 / 20);
+  assert.equal(GLIDER_CONFIG.descentSpeed, 1.5 / 20);
+  assert.equal(GLIDER_CONFIG.maxTurnRate, 20 * Math.PI / 180 / 20);
+  assert.equal(GLIDER_CONFIG.cameraTurnRate, 10 * Math.PI / 180 / 20);
   const animations = JSON.parse(readFileSync(new URL("../resource_packs/windglider_rp/animations/wind_glider.animation.json", import.meta.url), "utf8"));
   const opening = animations.animations["animation.wind_glider.open"];
   assert.equal(opening.animation_length, GLIDER_CONFIG.openingTicks / GLIDER_CONFIG.ticksPerSecond);
@@ -86,7 +87,7 @@ test("gliding always moves forward and loses height", () => {
   assert.ok(neutral.velocity.z > 0);
 });
 
-test("left and right turn smoothly, while the camera remains irrelevant", () => {
+test("left and right steer in opposite directions", () => {
   let state = handleJump(createPlayerGliderState(), airborne).state;
   for (let i = 0; i < GLIDER_CONFIG.openingTicks; i += 1) state = tickGlider(state, airborne).state;
   const left = tickGlider(state, airborne, { x: 1, y: 0 });
@@ -97,6 +98,22 @@ test("left and right turn smoothly, while the camera remains irrelevant", () => 
   assert.ok(runtime.tickGlider(state, airborne, { x: -1, y: 0 }).state.heading.x < 0);
   assert.equal(left.velocity.y, right.velocity.y);
   assert.ok(Math.abs(Math.hypot(left.state.heading.x, left.state.heading.z) - 1) < 1e-12);
+});
+
+test("camera turns flight gradually without altering sink, on both implementations", () => {
+  for (const implementation of [{ createPlayerGliderState, handleJump, tickGlider }, runtime]) {
+    let state = implementation.handleJump(implementation.createPlayerGliderState(), airborne).state;
+    for (let i = 0; i < GLIDER_CONFIG.openingTicks; i++) state = implementation.tickGlider(state, airborne).state;
+    const cameraRight = { ...airborne, viewDirection: { x: 1, y: 0.9, z: 0 } };
+    const result = implementation.tickGlider(state, cameraRight, { x: 0, y: 0 });
+    assert.ok(result.state.heading.x > 0);
+    assert.ok(result.state.heading.x <= Math.sin(GLIDER_CONFIG.cameraTurnRate) + 1e-12);
+    assert.equal(result.velocity.y, -GLIDER_CONFIG.descentSpeed);
+    const manual = implementation.tickGlider(state, cameraRight, { x: -1, y: 0 });
+    assert.ok(manual.state.heading.x < 0);
+    const vertical = implementation.tickGlider(state, { ...airborne, viewDirection: { x: 0, y: 1, z: 0 } });
+    assert.deepEqual(vertical.state.heading, state.heading);
+  }
 });
 
 test("airborne checks prevent activation and end an active flight", () => {

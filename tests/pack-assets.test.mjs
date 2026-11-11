@@ -50,6 +50,15 @@ test("the folded model binds to the held item slot and uses a matching texture s
   assert.equal(png.readUInt32BE(20), geometry.description.texture_height);
 });
 
+test("gliding pose is finite and resets the player limbs", () => {
+  const animations = readJson("resource_packs/windglider_rp/animations/wind_glider.animation.json").animations;
+  const pose = animations["animation.wind_glider.player_glide"];
+  assert.equal(pose.override_previous_animation, true);
+  assert.equal(pose.loop, false);
+  assert.ok(pose.animation_length > 0 && pose.animation_length <= 0.5);
+  for (const bone of ["leftarm", "rightarm", "leftleg", "rightleg"]) assert.ok(pose.bones[bone].rotation);
+});
+
 test("behavior pack pins the matching resource pack version", () => {
   const behavior = readJson("behavior_packs/windglider_bp/manifest.json");
   const resources = readJson("resource_packs/windglider_rp/manifest.json");

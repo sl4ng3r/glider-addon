@@ -8,8 +8,9 @@ export const GLIDER_CONFIG = Object.freeze({
   ticksPerSecond: 20,
   openingTicks: 6,
   forwardSpeed: 6 / 20,
-  descentSpeed: 1.4 / 20,
-  maxTurnRate: (50 * Math.PI) / 180 / 20,
+  descentSpeed: 1.5 / 20,
+  maxTurnRate: (20 * Math.PI) / 180 / 20,
+  cameraTurnRate: (10 * Math.PI) / 180 / 20,
   inputDeadzone: 0.2,
 });
 
@@ -96,7 +97,14 @@ export function tickGlider(state, snapshot, input = { x: 0, y: 0 }) {
   }
   const rawTurn = Number.isFinite(input?.x) ? input.x : 0;
   const turnInput = Math.abs(rawTurn) < GLIDER_CONFIG.inputDeadzone ? 0 : Math.max(-1, Math.min(1, rawTurn));
-  const heading = turnInput === 0 ? state.heading : rotateHeading(state.heading, -turnInput * GLIDER_CONFIG.maxTurnRate);
+  let turn = -turnInput * GLIDER_CONFIG.maxTurnRate;
+  const look = snapshot.viewDirection;
+  if (turnInput === 0 && Number.isFinite(look?.x) && Number.isFinite(look?.z) && Math.hypot(look.x, look.z) > EPSILON) {
+    const target = normalizeHorizontal(look);
+    const angle = Math.atan2(state.heading.x * target.z - state.heading.z * target.x, state.heading.x * target.x + state.heading.z * target.z);
+    turn = Math.max(-GLIDER_CONFIG.cameraTurnRate, Math.min(GLIDER_CONFIG.cameraTurnRate, angle));
+  }
+  const heading = turn === 0 ? state.heading : rotateHeading(state.heading, turn);
   return {
     type: "gliding",
     state: { ...state, heading },

@@ -4,7 +4,7 @@
 2. In einer Kopie der Welt beide Packs aktivieren und `/give @s glider:glider` ausführen.
 3. Von einer Höhe springen, den Windgleiter auswählen und nach mindestens einem Lufttick erneut die Sprungtaste drücken.
 4. Die Öffnung dauert 6 Ticks (0,3 Sekunden). Vor Ablauf gibt es keinen Fallschutz.
-5. Im Flug nur Links/Rechts zum Kurvenflug verwenden. Der Vortrieb bleibt ohne Vorwärtseingabe erhalten.
+5. Im Flug mit Links/Rechts sanft kurven. Ohne seitliche Eingabe folgt der Gleiter langsam der horizontalen Blickrichtung. Der Vortrieb bleibt ohne Vorwärtseingabe erhalten.
 6. Erneut springen, um den Gleiter einzuklappen und den freien Fall zu testen.
 
 Für PS5 wird die importierte Welt über einen Realm bereitgestellt. Der Realm wird erst nach den lokalen Tests aktualisiert.

@@ -4,7 +4,7 @@
     "name": "Wind Glider – Resources",
     "description": "Model, animation, artwork, sound, and multilingual text for the Wind Glider.",
     "uuid": "2f5fca49-f610-4b35-9fd1-2c7764b82c22",
-    "version": [1, 0, 8],
+    "version": [1, 0, 10],
     "pack_scope": "world",
     "min_engine_version": [1, 21, 90]
   },
@@ -13,13 +13,13 @@
       "description": "Wind Glider resources",
       "type": "resources",
       "uuid": "3f4b4d62-8b80-4a44-a77f-1e50e655e3f8",
-      "version": [1, 0, 8]
+      "version": [1, 0, 10]
     }
   ],
   "dependencies": [
     {
       "uuid": "1a6c3b1e-8f2f-4eb6-8c27-4a5c2c4f6a11",
-      "version": [1, 0, 8]
+      "version": [1, 0, 10]
     }
   ]
 }

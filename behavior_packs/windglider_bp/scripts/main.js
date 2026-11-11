@@ -13,6 +13,7 @@ import {
   horizontalLookDirection,
   tickGlider,
 } from "./flight.js";
+import { updateGlidingPose } from "./player-pose.js";
 
 const GLIDER_ITEM_ID = "glider:glider";
 const DISPLAY_ENTITY_ID = "glider:display";
@@ -257,6 +258,7 @@ function closeDisplay(record) {
 }
 
 function endFlight(player, record) {
+  updateGlidingPose(player, record, false);
   restoreMovement(player, record.state);
   stopSlowFalling(player, record.state);
   try {
@@ -317,6 +319,7 @@ function tickPlayer(player) {
     startGliding(player, record);
   }
   if (record.state.state === GLIDER_STATES.GLIDING) {
+    updateGlidingPose(player, record, true);
     applyVelocity(player, result.velocity ?? { x: 0, y: 0, z: 0 });
     startSlowFalling(player, record.state);
     if (record.state.openingTicks % 30 === 0) playSound(player, "windglider.wind", 0.12);

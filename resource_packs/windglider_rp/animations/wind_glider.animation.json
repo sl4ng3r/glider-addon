@@ -1,6 +1,17 @@
 {
   "format_version": "1.8.0",
   "animations": {
+    "animation.wind_glider.player_glide": {
+      "animation_length": 0.25,
+      "loop": false,
+      "override_previous_animation": true,
+      "bones": {
+        "leftarm": { "rotation": [180, 0, -15] },
+        "rightarm": { "rotation": [180, 0, 15] },
+        "leftleg": { "rotation": [8, 0, -4] },
+        "rightleg": { "rotation": [8, 0, 4] }
+      }
+    },
     "animation.wind_glider.open": {
       "animation_length": 0.3,
       "loop": "hold_on_last_frame",
