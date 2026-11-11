@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { inflateSync } from "node:zlib";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const readJson = (path) => JSON.parse(readFileSync(join(root, path), "utf8"));
@@ -48,6 +49,52 @@ test("the folded model binds to the held item slot and uses a matching texture s
   const png = readFileSync(join(root, "resource_packs/windglider_rp", `${attachable.textures.default}.png`));
   assert.equal(png.readUInt32BE(16), geometry.description.texture_width);
   assert.equal(png.readUInt32BE(20), geometry.description.texture_height);
+});
+
+test("the held model sits near the player's hand instead of the feet", () => {
+  const model = readJson("resource_packs/windglider_rp/models/entity/wind_glider.geo.json")["minecraft:geometry"]
+    .find(({ description }) => description.identifier === "geometry.wind_glider.folded");
+  const attachable = readJson("resource_packs/windglider_rp/attachables/glider.player.json")["minecraft:attachable"].description;
+  const animations = readJson("resource_packs/windglider_rp/animations/wind_glider.animation.json").animations;
+  assert.equal(model.bones[0].binding, "q.item_slot_to_bone_name(context.item_slot)");
+  assert.ok(model.bones[0].pivot[1] >= 15);
+  assert.ok(model.bones[0].cubes.every(({ origin }) => origin[1] >= 10));
+  assert.ok(!attachable.scripts.animate.some((entry) => Object.hasOwn(entry, "hold_third_person")));
+  assert.equal(animations["animation.wind_glider.hold_third_person"], undefined);
+});
+
+test("the open sail has a visible span and the model texture is a UV atlas", () => {
+  const models = readJson("resource_packs/windglider_rp/models/entity/wind_glider.geo.json")["minecraft:geometry"];
+  const open = models.find(({ description }) => description.identifier === "geometry.wind_glider.open");
+  const canopy = open.bones.find(({ name }) => name === "canopy");
+  assert.ok(canopy.cubes.some(({ size }) => size[0] >= 40));
+  const texturePath = join(root, "resource_packs/windglider_rp/textures/entity/wind_glider.png");
+  const png = readFileSync(texturePath);
+  assert.equal(png.readUInt32BE(16), open.description.texture_width);
+  assert.equal(png.readUInt32BE(20), open.description.texture_height);
+  const imageData = [];
+  for (let offset = 8; offset < png.length;) {
+    const length = png.readUInt32BE(offset);
+    const type = png.toString("ascii", offset + 4, offset + 8);
+    if (type === "IDAT") imageData.push(png.subarray(offset + 8, offset + 8 + length));
+    offset += length + 12;
+  }
+  const scanlines = inflateSync(Buffer.concat(imageData));
+  const pixelAt = (x, y) => {
+    assert.equal(scanlines[y * 257], 0, "the generated UV atlas uses unfiltered RGBA rows");
+    return [...scanlines.subarray(y * 257 + 1 + x * 4, y * 257 + 5 + x * 4)];
+  };
+  const sail = pixelAt(7, 7);
+  const motif = pixelAt(19, 7);
+  const undersideMotif = pixelAt(19, 27);
+  const wood = pixelAt(50, 2);
+  assert.ok(sail[0] > sail[2] && sail[1] > sail[2], "sail is warm cloth, not sky blue");
+  assert.ok(motif[1] > motif[0] && motif[1] > motif[2], "sail carries a green motif");
+  assert.ok(undersideMotif[1] > undersideMotif[0] && undersideMotif[1] > undersideMotif[2], "the motif is visible from below");
+  assert.ok(wood[0] > wood[1] && wood[1] > wood[2], "frame uses brown wood");
+  const source = readText("tools/generate-model-texture.mjs");
+  assert.match(source, /sail|cloth|wood/i);
+  assert.doesNotMatch(source, /title|landscape|sky/i);
 });
 
 test("gliding pose is finite and resets the player limbs", () => {

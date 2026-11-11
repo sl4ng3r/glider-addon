@@ -1,11 +1,12 @@
 {
   "name": "windgleiter-bedrock-addon",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "private": true,
   "type": "module",
   "scripts": {
+    "assets": "node tools/generate-model-texture.mjs",
     "test": "node --test tests/**/*.test.mjs",
     "validate": "node tools/validate-pack.mjs",
-    "build": "npm test && npm run validate && node tools/build-addon.mjs"
+    "build": "npm run assets && npm test && npm run validate && node tools/build-addon.mjs"
   }
 }

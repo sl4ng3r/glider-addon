@@ -37,7 +37,7 @@
         "root": {
           "scale": {
             "0.0": [1.0, 1.0, 1.0],
-            "1.0": [0.08, 0.08, 0.08]
+            "0.25": [0.08, 0.08, 0.08]
           }
         }
       }
@@ -63,17 +63,6 @@
           "position": [2, -8, 1],
           "rotation": [-24, -10, 8],
           "scale": [0.42, 0.42, 0.42]
-        }
-      }
-    },
-    "animation.wind_glider.hold_third_person": {
-      "animation_length": 1.0,
-      "loop": "hold_on_last_frame",
-      "bones": {
-        "root": {
-          "position": [-1, -5, 1],
-          "rotation": [-18, 0, 0],
-          "scale": [0.55, 0.55, 0.55]
         }
       }
     }

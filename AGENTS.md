@@ -9,8 +9,9 @@ Die reine Fluglogik liegt in `src/flight/GliderStateMachine.mjs` und wird durch 
 ## Befehle
 
 - `npm test` – Zustandsautomat und Flugberechnung testen
+- `npm run assets` – Modell und UV-Textur reproduzierbar erzeugen
 - `npm run validate` – JSON, Pack-Abhängigkeiten, Ressourcen und Rezept prüfen
-- `npm run build` – validieren und `dist/windglider.mcaddon` bauen
+- `npm run build` – Assets erzeugen, prüfen und `dist/windgleiter.mcaddon` bauen
 
 ## Dienste und Datenhaltung
 
@@ -19,7 +20,7 @@ Verwaiste Anzeige-Entitäten werden beim Script-Start und beim Beenden eines Flu
 
 ## Deployment
 
-Die Ausgabe `dist/windglider.mcaddon` wird am PC in Minecraft importiert. Danach werden Behavior- und Resource-Pack
+Die Ausgabe `dist/windgleiter.mcaddon` wird am PC in Minecraft importiert. Danach werden Behavior- und Resource-Pack
 für die Testwelt und anschließend für den Realm aktiviert. Die Pack-UUIDs und die Item-ID bleiben bei Updates stabil.
 Eine Produktivwelt wird vor dem ersten Realm-Update gesichert.
 
