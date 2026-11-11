@@ -29,3 +29,14 @@ test("behavior pack pins the matching resource pack version", () => {
 
   assert.deepEqual(dependency?.version, resources.header.version);
 });
+
+test("both packs are cooperative and share the 1.0.2 release", () => {
+  const behavior = readJson("behavior_packs/windglider_bp/manifest.json");
+  const resources = readJson("resource_packs/windglider_rp/manifest.json");
+  const behaviorDependency = resources.dependencies?.find(({ uuid }) => uuid === behavior.header.uuid);
+
+  assert.deepEqual(behavior.header.version, [1, 0, 2]);
+  assert.deepEqual(resources.header.version, [1, 0, 2]);
+  assert.deepEqual(behaviorDependency?.version, behavior.header.version);
+  assert.equal(resources.header.pack_scope, "world");
+});

@@ -51,6 +51,13 @@ if (!resourceDependency) {
 } else if (resourceDependency.version?.join(".") !== resourceManifest?.header?.version?.join(".")) {
   errors.push("Behavior Pack und Resource Pack haben unterschiedliche Versionen.");
 }
+const behaviorDependency = resourceManifest?.dependencies?.find((dependency) => dependency.uuid === behaviorManifest?.header?.uuid);
+if (!behaviorDependency) {
+  errors.push("Resource Pack referenziert das Behavior Pack nicht.");
+} else if (behaviorDependency.version?.join(".") !== behaviorManifest?.header?.version?.join(".")) {
+  errors.push("Resource Pack und Behavior Pack haben unterschiedliche Versionen.");
+}
+if (resourceManifest?.header?.pack_scope !== "world") errors.push("Resource Pack muss pack_scope world verwenden.");
 if (!behaviorManifest?.dependencies?.some((dependency) => dependency.module_name === "@minecraft/server" && dependency.version === "2.0.0")) errors.push("Stabile @minecraft/server-2.0.0-Abhängigkeit fehlt.");
 
 for (const pack of [behavior, resources]) {
