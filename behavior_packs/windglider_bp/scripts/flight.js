@@ -6,7 +6,7 @@ export const GLIDER_STATES = Object.freeze({
 
 export const GLIDER_CONFIG = Object.freeze({
   ticksPerSecond: 20,
-  openingTicks: 20,
+  openingTicks: 10,
   forwardSpeed: 6 / 20,
   descentSpeed: 1.7 / 20,
   maxTurnRate: (45 * Math.PI) / 180 / 20,
@@ -54,6 +54,8 @@ function canStart(snapshot) {
   return Boolean(
     snapshot?.selectedGlider &&
       !snapshot.isOnGround &&
+      Number(snapshot.airborneTicks) > 0 &&
+      !snapshot.justLeftGround &&
       !snapshot.isInWater &&
       !snapshot.isFlying &&
       !snapshot.isSpectator &&

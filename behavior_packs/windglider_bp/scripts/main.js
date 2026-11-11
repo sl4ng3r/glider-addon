@@ -6,6 +6,7 @@ import {
   world,
 } from "@minecraft/server";
 import {
+  GLIDER_CONFIG,
   GLIDER_STATES,
   createPlayerGliderState,
   handleJump,
@@ -27,7 +28,13 @@ const players = new Map();
 function getRecord(player) {
   let record = players.get(player.id);
   if (!record) {
-    record = { state: createPlayerGliderState(), displayEntity: undefined };
+    record = {
+      state: createPlayerGliderState(),
+      displayEntity: undefined,
+      airborneTicks: 0,
+      wasOnGround: true,
+      justLeftGround: false,
+    };
     players.set(player.id, record);
   }
   return record;
@@ -42,7 +49,7 @@ function getHeldItem(player) {
   }
 }
 
-function snapshot(player) {
+function snapshot(player, history = {}) {
   let gameMode = "";
   let isRiding = false;
   try {
@@ -64,9 +71,24 @@ function snapshot(player) {
     isSwimming: player.isSwimming,
     isRiding,
     isElytraGliding: player.isGliding,
+    airborneTicks: history.airborneTicks ?? 0,
+    justLeftGround: Boolean(history.justLeftGround),
     viewDirection: player.getViewDirection(),
     yawDegrees: player.getRotation().y,
   };
+}
+
+function updateAirborneHistory(record, currentSnapshot) {
+  if (!currentSnapshot.selectedGlider || currentSnapshot.isOnGround) {
+    record.airborneTicks = 0;
+    record.wasOnGround = currentSnapshot.isOnGround;
+    record.justLeftGround = false;
+    return;
+  }
+
+  record.justLeftGround = record.wasOnGround;
+  record.wasOnGround = false;
+  record.airborneTicks = Math.min(record.airborneTicks + 1, 2);
 }
 
 function headingYaw(heading) {
@@ -262,7 +284,7 @@ function applyVelocity(player, velocity) {
 
 function handleJumpPressed(player) {
   const record = getRecord(player);
-  const result = handleJump(record.state, snapshot(player));
+  const result = handleJump(record.state, snapshot(player, record));
   if (result.type === "ignored") return;
   record.state = result.state;
   if (result.type === "opening-started") {
@@ -276,6 +298,7 @@ function handleJumpPressed(player) {
 function tickPlayer(player) {
   const record = getRecord(player);
   const currentSnapshot = snapshot(player);
+  updateAirborneHistory(record, currentSnapshot);
   if (currentSnapshot.selectedGlider && !record.state.hintShown) {
     showTranslation(player, "windglider.hint");
     record.state.hintShown = true;
@@ -298,7 +321,7 @@ function tickPlayer(player) {
     startSlowFalling(player, record.state);
     if (record.state.openingTicks % 30 === 0) playSound(player, "windglider.wind", 0.12);
   } else if (record.state.state === GLIDER_STATES.OPENING) {
-    const progress = Math.min(9, Math.floor((record.state.openingTicks / 20) * 10));
+    const progress = Math.min(9, Math.floor((record.state.openingTicks / GLIDER_CONFIG.openingTicks) * 10));
     showTranslation(player, "windglider.opening", ` ${"▰".repeat(progress)}${"▱".repeat(10 - progress)}`);
   }
   updateDisplay(player, record);

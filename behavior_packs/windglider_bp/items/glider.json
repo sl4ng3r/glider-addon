@@ -10,10 +10,10 @@
     },
     "components": {
       "minecraft:display_name": {
-        "value": "item.glider.glider"
+        "value": "item.glider:glider"
       },
       "minecraft:icon": {
-        "texture": "wind_glider"
+        "texture": "glider:glider"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

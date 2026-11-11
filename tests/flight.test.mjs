@@ -11,6 +11,8 @@ import {
 const airborne = {
   selectedGlider: true,
   isOnGround: false,
+  airborneTicks: 2,
+  justLeftGround: false,
   isInWater: false,
   isFlying: false,
   isSpectator: false,
@@ -21,7 +23,18 @@ const airborne = {
   yawDegrees: 0,
 };
 
-test("jump starts a single 20 tick opening phase", () => {
+test("the first jump from the ground does not start the glider", () => {
+  const state = createPlayerGliderState();
+  const fromGround = handleJump(state, { ...airborne, airborneTicks: 0 });
+  assert.equal(fromGround.type, "ignored");
+  assert.equal(fromGround.state.state, GLIDER_STATES.IDLE);
+
+  const duringTakeoff = handleJump(state, { ...airborne, airborneTicks: 1, justLeftGround: true });
+  assert.equal(duringTakeoff.type, "ignored");
+  assert.equal(duringTakeoff.state.state, GLIDER_STATES.IDLE);
+});
+
+test("jump starts a single 10 tick opening phase after the player is airborne", () => {
   let state = createPlayerGliderState();
   let result = handleJump(state, airborne);
   assert.equal(result.type, "opening-started");

@@ -1,5 +1,5 @@
-item.glider.glider=Windgleiter
+item.glider:glider=Windgleiter
 pack.name=Windgleiter – Ressourcen
 pack.description=Holz, Stoff, Animationen, Geräusche und Bilder für den Windgleiter.
-windglider.hint=In der Luft: Springen zum Öffnen · erneut Springen zum Schließen
+windglider.hint=Nach dem Absprung: erneut Springen zum Öffnen · erneut Springen zum Schließen
 windglider.opening=Windgleiter öffnet

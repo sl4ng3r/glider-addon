@@ -1,6 +1,6 @@
 # Windgleiter
 
-Ein Bedrock-Add-on für einen eigenen Holz-Stoff-Gleiter mit automatischem Vortrieb, träger Links-/Rechts-Lenkung und einer einsekündigen Öffnungsanimation.
+Ein Bedrock-Add-on für einen eigenen Holz-Stoff-Gleiter mit automatischem Vortrieb, träger Links-/Rechts-Lenkung und einer 0,5-sekündigen Öffnungsanimation.
 
 ## Entwicklung
 
@@ -15,7 +15,7 @@ Das fertige Add-on liegt danach unter `dist/windgleiter.mcaddon`.
 ## Bedienung
 
 - Gleiter auswählen: gefaltet in der Hand sichtbar.
-- In der Luft Springen: Öffnen beginnt und dauert eine Sekunde.
+- Erster Sprung: normal abspringen; ein weiterer Sprung in der Luft startet die Öffnung für 0,5 Sekunden.
 - Erneut Springen: Öffnung abbrechen oder geöffneten Gleiter einklappen.
 - Links/Rechts: sanfte Kurven.
 - Vorwärts/Rückwärts: beeinflusst den automatischen Vortrieb nicht.
