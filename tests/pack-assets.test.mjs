@@ -39,6 +39,17 @@ test("the crafting recipe is available after collecting leather", () => {
   assert.ok(recipe.unlock?.some((condition) => condition.item === "minecraft:leather"));
 });
 
+test("the folded model binds to the held item slot and uses a matching texture size", () => {
+  const attachable = readJson("resource_packs/windglider_rp/attachables/glider.player.json")["minecraft:attachable"].description;
+  const geometry = readJson("resource_packs/windglider_rp/models/entity/wind_glider.geo.json")["minecraft:geometry"]
+    .find((model) => model.description.identifier === attachable.geometry.default);
+  const bone = geometry.bones.find((entry) => entry.name === "root");
+  assert.equal(bone.binding, "q.item_slot_to_bone_name(context.item_slot)");
+  const png = readFileSync(join(root, "resource_packs/windglider_rp", `${attachable.textures.default}.png`));
+  assert.equal(png.readUInt32BE(16), geometry.description.texture_width);
+  assert.equal(png.readUInt32BE(20), geometry.description.texture_height);
+});
+
 test("behavior pack pins the matching resource pack version", () => {
   const behavior = readJson("behavior_packs/windglider_bp/manifest.json");
   const resources = readJson("resource_packs/windglider_rp/manifest.json");
