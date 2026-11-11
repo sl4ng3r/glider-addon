@@ -35,6 +35,12 @@ test("the display entity rejects damage using the current sensor schema", () => 
   assert.ok(entity.components["minecraft:damage_sensor"].triggers.some((trigger) => trigger.cause === "all" && trigger.deals_damage === "no"));
 });
 
+test("the display can be spawned by the Script API without adding a creative spawn egg", () => {
+  const description = readJson("behavior_packs/windglider_bp/entities/glider_display.entity.json")["minecraft:entity"].description;
+  assert.equal(description.is_summonable, true);
+  assert.equal(description.is_spawnable, false);
+});
+
 test("the crafting recipe is available after collecting leather", () => {
   const recipe = readJson("behavior_packs/windglider_bp/recipes/wind_glider.json")["minecraft:recipe_shaped"];
   assert.ok(recipe.unlock?.some((condition) => condition.item === "minecraft:leather"));
