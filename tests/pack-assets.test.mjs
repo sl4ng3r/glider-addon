@@ -59,6 +59,7 @@ test("the held model sits near the player's hand instead of the feet", () => {
   assert.equal(model.bones[0].binding, "q.item_slot_to_bone_name(context.item_slot)");
   assert.ok(model.bones[0].pivot[1] >= 15);
   assert.ok(model.bones[0].cubes.every(({ origin }) => origin[1] >= 10));
+  assert.ok(Math.max(...model.bones[0].cubes.map(({ size }) => size[0])) <= 8, "the folded item does not cover the player's shoulders");
   assert.ok(!attachable.scripts.animate.some((entry) => Object.hasOwn(entry, "hold_third_person")));
   assert.equal(animations["animation.wind_glider.hold_third_person"], undefined);
 });
@@ -67,7 +68,11 @@ test("the open sail has a visible span and the model texture is a UV atlas", () 
   const models = readJson("resource_packs/windglider_rp/models/entity/wind_glider.geo.json")["minecraft:geometry"];
   const open = models.find(({ description }) => description.identifier === "geometry.wind_glider.open");
   const canopy = open.bones.find(({ name }) => name === "canopy");
-  assert.ok(canopy.cubes.some(({ size }) => size[0] >= 40));
+  assert.ok(canopy.cubes.length >= 5, "separate fabric panels form a curved sail");
+  const span = Math.max(...canopy.cubes.map(({ origin, size }) => origin[0] + size[0]))
+    - Math.min(...canopy.cubes.map(({ origin }) => origin[0]));
+  assert.ok(span >= 48);
+  assert.ok(new Set(canopy.cubes.map(({ origin }) => origin[1])).size >= 3, "the sail has a raised center and lower tips");
   const texturePath = join(root, "resource_packs/windglider_rp/textures/entity/wind_glider.png");
   const png = readFileSync(texturePath);
   assert.equal(png.readUInt32BE(16), open.description.texture_width);

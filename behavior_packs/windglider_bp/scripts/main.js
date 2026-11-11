@@ -14,6 +14,7 @@ import {
   tickGlider,
 } from "./flight.js";
 import { updateGlidingPose } from "./player-pose.js";
+import { ensureDisplay, positionDisplay } from "./display.js";
 
 const GLIDER_ITEM_ID = "glider:glider";
 const DISPLAY_ENTITY_ID = "glider:display";
@@ -32,6 +33,8 @@ function getRecord(player) {
     record = {
       state: createPlayerGliderState(),
       displayEntity: undefined,
+      displayRetryTicks: 0,
+      displayErrorLogged: false,
       airborneTicks: 0,
       wasOnGround: true,
       justLeftGround: false,
@@ -121,41 +124,6 @@ function playSound(player, soundId, volume = 0.7) {
   }
 }
 
-function spawnDisplay(player, record) {
-  if (record.displayEntity?.isValid) return;
-  try {
-    const location = player.location;
-    const entity = player.dimension.spawnEntity(DISPLAY_ENTITY_ID, {
-      x: location.x,
-      y: location.y + 1.8,
-      z: location.z,
-    });
-    record.displayEntity = entity;
-    entity.playAnimation("animation.wind_glider.open");
-    playSound(player, "windglider.open");
-  } catch {
-    record.displayEntity = undefined;
-  }
-}
-
-function updateDisplay(player, record) {
-  const entity = record.displayEntity;
-  if (!entity?.isValid) return;
-  try {
-    const location = player.location;
-    entity.teleport(
-      {
-        x: location.x,
-        y: location.y + 1.8,
-        z: location.z,
-      },
-      { rotation: { x: 0, y: headingYaw(record.state.heading) } },
-    );
-  } catch {
-    record.displayEntity = undefined;
-  }
-}
-
 function saveAndLockMovement(player, state) {
   if (state.savedPermissions) return;
   const savedPermissions = new Map();
@@ -232,12 +200,13 @@ function startGliding(player, record) {
   } catch {
     // Visual hiding is optional and must not affect movement.
   }
-  playSound(player, "windglider.open", 0.45);
 }
 
 function closeDisplay(record) {
   const entity = record.displayEntity;
   record.displayEntity = undefined;
+  record.displayRetryTicks = 0;
+  record.displayErrorLogged = false;
   if (!entity?.isValid) return;
   try {
     entity.playAnimation("animation.wind_glider.close");
@@ -290,7 +259,7 @@ function handleJumpPressed(player) {
   if (result.type === "ignored") return;
   record.state = result.state;
   if (result.type === "opening-started") {
-    spawnDisplay(player, record);
+    playSound(player, "windglider.open");
     showTranslation(player, "windglider.opening", " …");
   } else if (result.type === "opening-cancelled" || result.type === "glider-closed") {
     endFlight(player, record);
@@ -327,7 +296,12 @@ function tickPlayer(player) {
     const progress = Math.min(9, Math.floor((record.state.openingTicks / GLIDER_CONFIG.openingTicks) * 10));
     showTranslation(player, "windglider.opening", ` ${"▰".repeat(progress)}${"▱".repeat(10 - progress)}`);
   }
-  updateDisplay(player, record);
+  ensureDisplay(player, record, {
+    entityId: DISPLAY_ENTITY_ID,
+    animationId: record.state.state === GLIDER_STATES.OPENING ? "animation.wind_glider.open" : undefined,
+    onError: (error) => console.warn(`[windglider] display creation failed: ${error}`),
+  });
+  positionDisplay(player, record, headingYaw(record.state.heading));
 }
 
 function cleanupOrphans() {

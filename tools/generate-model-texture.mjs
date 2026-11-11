@@ -92,6 +92,14 @@ const clothFaces = {
   up: face([0, 0], [10, 2]), down: face([0, 20], [10, 2]),
 };
 const cube = (origin, size, uv) => ({ origin, size, uv });
+const sailPanels = [
+  { x: -24, width: 7, y: 7.5, z: -7, depth: 12, u: 0 },
+  { x: -17, width: 11, y: 9, z: -8, depth: 15, u: 7 },
+  { x: -6, width: 12, y: 10, z: -10, depth: 18, u: 18 },
+  { x: 6, width: 11, y: 9, z: -8, depth: 15, u: 30 },
+  { x: 17, width: 7, y: 7.5, z: -7, depth: 12, u: 41 },
+];
+const sailSide = face([1, 39], [1, 1]);
 const geometry = {
   format_version: "1.16.0",
   "minecraft:geometry": [
@@ -103,9 +111,9 @@ const geometry = {
       bones: [{
         name: "root", pivot: [0, 19, -6], binding: "q.item_slot_to_bone_name(context.item_slot)",
         cubes: [
-          cube([-5, 17, -8], [10, 2, 2], clothFaces),
-          cube([-6, 16.5, -8.2], [12, 0.8, 0.8], woodFaces),
-          cube([-1, 13, -8], [2, 4, 2], darkWoodFaces),
+          cube([0, 14, -8], [6, 2, 2], clothFaces),
+          cube([-0.5, 13.5, -8.2], [7, 0.8, 0.8], woodFaces),
+          cube([2, 10.5, -8], [2, 3, 2], darkWoodFaces),
         ],
       }],
     },
@@ -118,21 +126,22 @@ const geometry = {
         { name: "root", pivot: [0, 0, 0] },
         {
           name: "canopy", parent: "root", pivot: [0, 8, 0],
-          cubes: [cube([-24, 8, -8], [48, 0.6, 16], {
-            up: face([0, 0], [48, 16]), down: face([0, 20], [48, 16]),
-            north: face([1, 39], [1, 1]), south: face([1, 39], [1, 1]),
-            east: face([1, 39], [1, 1]), west: face([1, 39], [1, 1]),
-          })],
+          cubes: sailPanels.map(({ x, width: panelWidth, y, z, depth, u }) => cube([x, y, z], [panelWidth, 1.2, depth], {
+            up: face([u, 0], [panelWidth, 16]), down: face([u, 20], [panelWidth, 16]),
+            north: sailSide, south: sailSide, east: sailSide, west: sailSide,
+          })),
         },
         {
           name: "frame", parent: "root", pivot: [0, 0, 0],
           cubes: [
-            cube([-24, 7.5, -8.8], [48, 1, 1], woodFaces),
-            cube([-24, 7.5, 7.8], [48, 1, 1], woodFaces),
-            cube([-6, 0, -7.5], [1, 8, 1], woodFaces),
-            cube([5, 0, -7.5], [1, 8, 1], woodFaces),
-            cube([-24, 7.5, -7.5], [1, 1, 16], woodFaces),
-            cube([23, 7.5, -7.5], [1, 1, 16], woodFaces),
+            ...sailPanels.flatMap(({ x, width: panelWidth, y, z, depth }) => [
+              cube([x, y - 0.3, z - 0.7], [panelWidth, 0.9, 0.9], woodFaces),
+              cube([x, y - 0.3, z + depth - 0.2], [panelWidth, 0.9, 0.9], woodFaces),
+            ]),
+            cube([-6, 0, -8], [1, 10, 1], woodFaces),
+            cube([5, 0, -8], [1, 10, 1], woodFaces),
+            cube([-17, 1, -7], [0.6, 8, 0.6], darkWoodFaces),
+            cube([16.4, 1, -7], [0.6, 8, 0.6], darkWoodFaces),
           ],
         },
         {
