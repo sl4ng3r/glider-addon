@@ -79,7 +79,7 @@ const item = json(join(behavior, "items", "glider.json"));
 const recipe = json(join(behavior, "recipes", "wind_glider.json"));
 if (item?.["minecraft:item"]?.description?.identifier !== "glider:glider") errors.push("Item-ID glider:glider fehlt.");
 if (item?.["minecraft:item"]?.components?.["minecraft:display_name"]?.value !== "item.glider:glider") errors.push("Item-Übersetzungsschlüssel item.glider:glider fehlt.");
-if (item?.["minecraft:item"]?.components?.["minecraft:icon"]?.texture !== "glider:glider") errors.push("Item-Icon-Key glider:glider fehlt.");
+if (item?.["minecraft:item"]?.components?.["minecraft:icon"]?.textures?.default !== "glider:glider") errors.push("Item-Icon-Key glider:glider fehlt in textures.default.");
 if (recipe?.["minecraft:recipe_shaped"]?.result?.item !== "glider:glider") errors.push("Rezept erzeugt nicht glider:glider.");
 if (recipe?.["minecraft:recipe_shaped"]?.pattern?.join("|") !== "LLL|SFS| S ") errors.push("Rezeptmuster entspricht nicht dem Plan.");
 

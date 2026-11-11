@@ -4,8 +4,7 @@
     "description": {
       "identifier": "glider:glider",
       "menu_category": {
-        "category": "items",
-        "group": "itemGroup.name.misc"
+        "category": "items"
       }
     },
     "components": {
@@ -13,7 +12,9 @@
         "value": "item.glider:glider"
       },
       "minecraft:icon": {
-        "texture": "glider:glider"
+        "textures": {
+          "default": "glider:glider"
+        }
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,
