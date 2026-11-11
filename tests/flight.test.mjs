@@ -7,6 +7,8 @@ import {
   handleJump,
   tickGlider,
 } from "../src/flight/GliderStateMachine.mjs";
+import { GLIDER_CONFIG as runtimeConfig } from "../behavior_packs/windglider_bp/scripts/flight.js";
+import { readFileSync } from "node:fs";
 
 const airborne = {
   selectedGlider: true,
@@ -34,7 +36,18 @@ test("the first jump from the ground does not start the glider", () => {
   assert.equal(duringTakeoff.state.state, GLIDER_STATES.IDLE);
 });
 
-test("jump starts a single 10 tick opening phase after the player is airborne", () => {
+test("flight tuning and opening animation agree with the runtime pack", () => {
+  assert.deepEqual(runtimeConfig, GLIDER_CONFIG);
+  assert.equal(GLIDER_CONFIG.openingTicks, 6);
+  assert.equal(GLIDER_CONFIG.descentSpeed, 1.4 / 20);
+  assert.equal(GLIDER_CONFIG.maxTurnRate, 60 * Math.PI / 180 / 20);
+  const animations = JSON.parse(readFileSync(new URL("../resource_packs/windglider_rp/animations/wind_glider.animation.json", import.meta.url), "utf8"));
+  const opening = animations.animations["animation.wind_glider.open"];
+  assert.equal(opening.animation_length, GLIDER_CONFIG.openingTicks / GLIDER_CONFIG.ticksPerSecond);
+  assert.deepEqual(opening.bones.root.scale[String(opening.animation_length)], [1, 1, 1]);
+});
+
+test("jump starts a 6 tick opening phase after the player is airborne", () => {
   let state = createPlayerGliderState();
   let result = handleJump(state, airborne);
   assert.equal(result.type, "opening-started");
@@ -81,7 +94,7 @@ test("left and right turn smoothly, while the camera remains irrelevant", () => 
   assert.ok(left.state.heading.x < 0);
   assert.ok(right.state.heading.x > 0);
   assert.equal(left.velocity.y, right.velocity.y);
-  assert.equal(Math.hypot(left.state.heading.x, left.state.heading.z), 1);
+  assert.ok(Math.abs(Math.hypot(left.state.heading.x, left.state.heading.z) - 1) < 1e-12);
 });
 
 test("airborne checks prevent activation and end an active flight", () => {
