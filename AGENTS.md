@@ -15,7 +15,7 @@ Außerhalb der Dimensionshöhe wird die Anzeige ohne Spawn-Versuch ausgesetzt un
 - `npm test` – Zustandsautomat und Flugberechnung testen
 - `npm run assets` – Modell und UV-Textur reproduzierbar erzeugen
 - `npm run validate` – JSON, Pack-Abhängigkeiten, Ressourcen und Rezept prüfen
-- `npm run build` – Assets erzeugen, prüfen und `dist/windgleiter.mcaddon` bauen
+- `npm run build` – Assets erzeugen, prüfen und `dist/windgleiter.mcaddon` mit zwei `.mcpack`-Dateien bauen
 
 ## Dienste und Datenhaltung
 

@@ -10,7 +10,7 @@ npm run validate
 npm run build
 ```
 
-Das fertige Add-on liegt danach unter `dist/windgleiter.mcaddon`.
+Das fertige Add-on liegt danach unter `dist/windgleiter.mcaddon`. Es enthält je eine importierbare `.mcpack`-Datei für Spiellogik und Ressourcen.
 
 ## Bedienung
 
