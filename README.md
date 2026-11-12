@@ -15,10 +15,13 @@ Das fertige Add-on liegt danach unter `dist/windgleiter.mcaddon`.
 ## Bedienung
 
 - Gleiter auswählen: gefaltet in der Hand sichtbar.
-- Erster Sprung: normal abspringen; ein weiterer Sprung in der Luft startet die Öffnung für 0,3 Sekunden.
+- Erster Sprung: normal abspringen; innerhalb von 0,4 Sekunden erneut Springen drücken, um die Öffnung zu starten. Wer ohne Sprung von einer Kante fällt, kann den Gleiter mit einem Druck in der Luft öffnen.
 - Erneut Springen: Öffnung abbrechen oder geöffneten Gleiter einklappen.
+- Trifft der geöffnete Gleiter frontal auf eine Wand, klappt er ein und der normale Fall beginnt.
 - Links/Rechts: sanfte Kurven.
 - Ohne seitliche Eingabe richtet sich der Flug langsam zur horizontalen Blickrichtung aus.
 - Vorwärts/Rückwärts: beeinflusst den automatischen Vortrieb nicht.
+
+Die Kurzbedienung steht in der Pack-Beschreibung. Während des Spiels erscheinen keine eigenen Statusmeldungen in der Aktionsleiste.
 
 Die Pack- und Testanleitung liegt in `docs/controls.md`.

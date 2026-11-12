@@ -19,18 +19,39 @@ test("the item uses the namespaced icon key and localized item key", () => {
   assert.deepEqual(itemTexture.texture_data["glider:glider"].textures, "textures/items/wind_glider");
 });
 
-test("the folded hand model hides while the selected glider is in its visual cooldown", () => {
+test("the folded hand model hides through the player pose without a hotbar cooldown", () => {
   const item = readJson("behavior_packs/windglider_bp/items/glider.json")["minecraft:item"];
   const controller = readJson("resource_packs/windglider_rp/render_controllers/wind_glider.render_controllers.json")
     .render_controllers["controller.render.wind_glider_item"];
-  assert.equal(item.components["minecraft:cooldown"]?.category, "windglider_visual");
-  assert.ok(controller.part_visibility?.some((part) =>
-    part.root === "q.cooldown_time_remaining('windglider_visual') <= 0.0"));
+  const pose = readJson("resource_packs/windglider_rp/animations/wind_glider.animation.json")
+    .animations["animation.wind_glider.player_glide"];
+  assert.equal(item.components["minecraft:cooldown"], undefined);
+  assert.equal(controller.part_visibility, undefined);
+  assert.deepEqual(pose.bones.rightitem.scale, [0, 0, 0]);
 });
 
 test("English and German resource translations name the item", () => {
   assert.match(readText("resource_packs/windglider_rp/texts/en_US.lang"), /^item\.glider:glider=Wind Glider$/m);
   assert.match(readText("resource_packs/windglider_rp/texts/de_DE.lang"), /^item\.glider:glider=Windgleiter$/m);
+});
+
+test("controls appear in localized pack descriptions instead of the action bar", () => {
+  const script = readText("behavior_packs/windglider_bp/scripts/main.js");
+  assert.doesNotMatch(script, /setActionBar|showTranslation|windglider\.hint|windglider\.opening/);
+  assert.match(script, /decideOpeningPress/);
+  for (const pack of ["behavior_packs/windglider_bp", "resource_packs/windglider_rp"]) {
+    const manifest = readJson(`${pack}/manifest.json`);
+    assert.equal(manifest.header.name, "pack.name");
+    assert.equal(manifest.header.description, "pack.description");
+    const english = readText(`${pack}/texts/en_US.lang`);
+    const german = readText(`${pack}/texts/de_DE.lang`);
+    assert.match(english, /^pack\.description=.*Jump.*open.*Jump.*close/m);
+    assert.match(german, /^pack\.description=.*Springen.*öffnen.*Springen.*schließen/mi);
+    assert.match(english, /^pack\.description=.*0\.4s/m);
+    assert.match(german, /^pack\.description=.*0,4 s/m);
+    assert.doesNotMatch(english, /^windglider\.(hint|opening)=/m);
+    assert.doesNotMatch(german, /^windglider\.(hint|opening)=/m);
+  }
 });
 
 test("creative category does not use an invalid unnamespaced group", () => {
@@ -74,7 +95,17 @@ test("the held model sits near the player's hand instead of the feet", () => {
   assert.equal(model.bones[0].binding, "q.item_slot_to_bone_name(context.item_slot)");
   assert.ok(model.bones[0].pivot[1] >= 15);
   assert.ok(model.bones[0].cubes.every(({ origin }) => origin[1] >= 10));
-  assert.ok(Math.max(...model.bones[0].cubes.map(({ size }) => size[0])) <= 8, "the folded item does not cover the player's shoulders");
+  assert.ok(Math.max(...model.bones[0].cubes.map(({ size }) => size[0])) <= 4, "the folded item stays within the hand");
+  const [foldedCloth, crossbar, grip] = model.bones[0].cubes;
+  for (const part of [foldedCloth, crossbar, grip]) {
+    const centerX = part.origin[0] + part.size[0] / 2;
+    assert.ok(Math.abs(centerX - model.bones[0].pivot[0]) <= 0.5, "folded parts should line up with the held-item anchor");
+  }
+  const gripCenterY = grip.origin[1] + grip.size[1] / 2;
+  const gripCenterZ = grip.origin[2] + grip.size[2] / 2;
+  assert.ok(Math.abs(gripCenterY - model.bones[0].pivot[1]) <= 0.5, "the grip must meet the hand anchor vertically");
+  assert.ok(gripCenterZ - model.bones[0].pivot[2] >= 4, "the grip must sit farther back toward the hand");
+  assert.ok(foldedCloth.origin[1] > grip.origin[1], "the folded canopy sits above the hand-held grip");
   assert.ok(!attachable.scripts.animate.some((entry) => Object.hasOwn(entry, "hold_third_person")));
   assert.equal(animations["animation.wind_glider.hold_third_person"], undefined);
 });
@@ -89,7 +120,7 @@ test("the open sail has a visible span and the model texture is a UV atlas", () 
   assert.ok(span >= 48);
   assert.ok(new Set(canopy.cubes.map(({ origin }) => origin[1])).size >= 3, "the sail has a raised center and lower tips");
   const handles = open.bones.find(({ name }) => name === "handles");
-  assert.ok(handles.cubes.every(({ origin }) => origin[1] >= 3), "the grips are close to raised hands");
+  assert.ok(handles.cubes.every(({ origin }) => origin[1] >= 6), "the grips are close to raised hands");
   const texturePath = join(root, "resource_packs/windglider_rp/textures/entity/wind_glider.png");
   const png = readFileSync(texturePath);
   assert.equal(png.readUInt32BE(16), open.description.texture_width);

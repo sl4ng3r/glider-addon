@@ -9,7 +9,8 @@
         "leftarm": { "rotation": [180, 0, -15] },
         "rightarm": { "rotation": [180, 0, 15] },
         "leftleg": { "rotation": [8, 0, -4] },
-        "rightleg": { "rotation": [8, 0, 4] }
+        "rightleg": { "rotation": [8, 0, 4] },
+        "rightitem": { "scale": [0, 0, 0] }
       }
     },
     "animation.wind_glider.open": {

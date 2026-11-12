@@ -36,15 +36,49 @@ test("a rejected animation does not discard a successfully spawned display", () 
   assert.equal(errors.length, 1);
 });
 
-test("the sail stays close above the head and leads flight by one tick", () => {
+test("opening above the dimension ceiling waits without logging and spawns after descending", () => {
+  let spawns = 0;
+  const errors = [];
+  const entity = { isValid: true };
+  const player = {
+    location: { x: 273, y: 536, z: -44 },
+    dimension: {
+      heightRange: { min: -64, max: 320 },
+      spawnEntity: () => { spawns++; return entity; },
+    },
+  };
+  const record = {};
+  const options = { entityId: "glider:display", onError: (error) => errors.push(error) };
+  assert.equal(ensureDisplay(player, record, options), false);
+  assert.equal(spawns, 0);
+  assert.equal(errors.length, 0);
+  assert.equal(record.displayRetryTicks ?? 0, 0);
+  player.location.y = 318;
+  assert.equal(ensureDisplay(player, record, options), true);
+  assert.equal(spawns, 1);
+  assert.equal(record.displayEntity, entity);
+});
+
+test("an existing display is removed before teleporting above the ceiling", () => {
+  let removals = 0;
+  let teleports = 0;
+  const player = { location: { x: 0, y: 536, z: 0 }, dimension: { heightRange: { min: -64, max: 320 } } };
+  const record = { displayEntity: { isValid: true, remove: () => { removals++; }, teleport: () => { teleports++; } } };
+  assert.equal(positionDisplay(player, record, 0), false);
+  assert.equal(removals, 1);
+  assert.equal(teleports, 0);
+  assert.equal(record.displayEntity, undefined);
+});
+
+test("the sail sits closer above the player and leads in the flight direction", () => {
   const teleports = [];
-  const player = { location: { x: 4, y: 30, z: -2 } };
+  const player = { location: { x: 4, y: 30, z: -2 }, dimension: { heightRange: { min: -64, max: 320 } } };
   const record = { displayEntity: { isValid: true, teleport: (...args) => teleports.push(args) } };
   assert.equal(positionDisplay(player, record, 45, { x: 1, z: 0 }), true);
   assert.deepEqual(teleports[0], [
     { x: 4 + DISPLAY_LEAD_DISTANCE, y: 30 + DISPLAY_Y_OFFSET, z: -2 },
     { rotation: { x: 0, y: 45 } },
   ]);
-  assert.ok(DISPLAY_Y_OFFSET >= 1.4 && DISPLAY_Y_OFFSET <= 1.7);
-  assert.ok(DISPLAY_LEAD_DISTANCE >= 0.2 && DISPLAY_LEAD_DISTANCE <= 0.4);
+  assert.equal(DISPLAY_Y_OFFSET, 1.12);
+  assert.equal(DISPLAY_LEAD_DISTANCE, 0.7);
 });

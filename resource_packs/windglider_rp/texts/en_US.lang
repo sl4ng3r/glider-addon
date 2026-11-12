@@ -1,5 +1,3 @@
 item.glider:glider=Wind Glider
 pack.name=Wind Glider – Resources
-pack.description=Wood, cloth, animation, sound, and interface art for the Wind Glider.
-windglider.hint=After jumping: press Jump again to open · press Jump again to close
-windglider.opening=Wind Glider opening
+pack.description=After takeoff, press Jump again within 0.4s to open; press Jump again to close.

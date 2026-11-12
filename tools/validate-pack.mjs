@@ -43,6 +43,11 @@ function walk(directory) {
 
 const behaviorManifest = json(join(behavior, "manifest.json"));
 const resourceManifest = json(join(resources, "manifest.json"));
+for (const [pack, manifest] of [[behavior, behaviorManifest], [resources, resourceManifest]]) {
+  if (manifest?.header?.name !== "pack.name" || manifest?.header?.description !== "pack.description") {
+    errors.push(`${relative(root, pack)} muss lokalisierte Pack-Metadaten verwenden.`);
+  }
+}
 if (behaviorManifest?.header?.uuid !== "1a6c3b1e-8f2f-4eb6-8c27-4a5c2c4f6a11") errors.push("Behavior-Pack-UUID ist nicht stabil oder unerwartet.");
 if (resourceManifest?.header?.uuid !== "2f5fca49-f610-4b35-9fd1-2c7764b82c22") errors.push("Resource-Pack-UUID ist nicht stabil oder unerwartet.");
 const resourceDependency = behaviorManifest?.dependencies?.find((dependency) => dependency.uuid === resourceManifest?.header?.uuid);
@@ -68,7 +73,7 @@ for (const pack of [behavior, resources]) {
     required(textPath);
     if (existsSync(textPath)) {
       const text = readFileSync(textPath, "utf8");
-      for (const key of ["windglider.hint", "windglider.opening"]) {
+      for (const key of ["pack.name", "pack.description"]) {
         if (!text.includes(`${key}=`)) errors.push(`${relative(root, textPath)} enthält ${key} nicht.`);
       }
     }
@@ -90,7 +95,8 @@ const requiredFiles = [
   join(behavior, "scripts", "main.js"),
   join(behavior, "scripts", "flight.js"),
   join(behavior, "scripts", "display.js"),
-  join(behavior, "scripts", "visual-state.js"),
+  join(behavior, "scripts", "wall-collision.js"),
+  join(behavior, "scripts", "jump-activation.js"),
   join(behavior, "entities", "glider_display.entity.json"),
   join(resources, "textures", "item_texture.json"),
   join(resources, "textures", "items", "wind_glider.png"),

@@ -6,7 +6,6 @@ import {
   world,
 } from "@minecraft/server";
 import {
-  GLIDER_CONFIG,
   GLIDER_STATES,
   createPlayerGliderState,
   handleJump,
@@ -15,7 +14,8 @@ import {
 } from "./flight.js";
 import { updateGlidingPose } from "./player-pose.js";
 import { ensureDisplay, positionDisplay } from "./display.js";
-import { hideFoldedItem } from "./visual-state.js";
+import { hasWallContact } from "./wall-collision.js";
+import { ACTIVATION_GAP_TICKS, decideOpeningPress } from "./jump-activation.js";
 
 const GLIDER_ITEM_ID = "glider:glider";
 const DISPLAY_ENTITY_ID = "glider:display";
@@ -39,6 +39,10 @@ function getRecord(player) {
       airborneTicks: 0,
       wasOnGround: true,
       justLeftGround: false,
+      glidingTicks: 0,
+      previousGlideLocation: undefined,
+      previousJumpPressTick: undefined,
+      reopenReady: false,
     };
     players.set(player.id, record);
   }
@@ -76,6 +80,7 @@ function snapshot(player, history = {}) {
     isSwimming: player.isSwimming,
     isRiding,
     isElytraGliding: player.isGliding,
+    isFalling: player.isFalling,
     airborneTicks: history.airborneTicks ?? 0,
     justLeftGround: Boolean(history.justLeftGround),
     viewDirection: player.getViewDirection(),
@@ -98,23 +103,6 @@ function updateAirborneHistory(record, currentSnapshot) {
 
 function headingYaw(heading) {
   return (Math.atan2(-heading.x, heading.z) * 180) / Math.PI;
-}
-
-function showActionBar(player, message) {
-  try {
-    player.onScreenDisplay.setActionBar(message);
-  } catch {
-    // The player may have left between the tick and the display update.
-  }
-}
-
-function showTranslation(player, key, trailingText = "") {
-  showActionBar(player, {
-    rawtext: [
-      { translate: key },
-      ...(trailingText ? [{ text: trailingText }] : []),
-    ],
-  });
 }
 
 function playSound(player, soundId, volume = 0.7) {
@@ -194,6 +182,8 @@ function stopSlowFalling(player, state) {
 }
 
 function startGliding(player, record) {
+  record.glidingTicks = 0;
+  record.previousGlideLocation = undefined;
   saveAndLockMovement(player, record.state);
   startSlowFalling(player, record.state);
   try {
@@ -203,13 +193,17 @@ function startGliding(player, record) {
   }
 }
 
-function closeDisplay(record) {
+function closeDisplay(record, immediate = false) {
   const entity = record.displayEntity;
   record.displayEntity = undefined;
   record.displayRetryTicks = 0;
   record.displayErrorLogged = false;
   if (!entity?.isValid) return;
   try {
+    if (immediate) {
+      entity.remove();
+      return;
+    }
     entity.playAnimation("animation.wind_glider.close");
     system.runTimeout(() => {
       try {
@@ -227,9 +221,12 @@ function closeDisplay(record) {
   }
 }
 
-function endFlight(player, record) {
+function endFlight(player, record, immediateDisplay = false) {
+  record.glidingTicks = 0;
+  record.previousGlideLocation = undefined;
+  record.previousJumpPressTick = undefined;
+  record.reopenReady = false;
   updateGlidingPose(player, record, false);
-  hideFoldedItem(player, false);
   restoreMovement(player, record.state);
   stopSlowFalling(player, record.state);
   try {
@@ -237,7 +234,7 @@ function endFlight(player, record) {
   } catch {
     // The player can be invalid during disconnect.
   }
-  closeDisplay(record);
+  closeDisplay(record, immediateDisplay);
   playSound(player, "windglider.close", 0.55);
   record.state = createPlayerGliderState();
 }
@@ -257,14 +254,34 @@ function applyVelocity(player, velocity) {
 
 function handleJumpPressed(player) {
   const record = getRecord(player);
-  const result = handleJump(record.state, snapshot(player, record));
-  if (result.type === "ignored") return;
+  const currentSnapshot = snapshot(player, record);
+  if (record.state.state === GLIDER_STATES.IDLE) {
+    const decision = decideOpeningPress({
+      currentTick: system.currentTick,
+      previousPressTick: record.previousJumpPressTick,
+      canStart: currentSnapshot.selectedGlider && !currentSnapshot.isOnGround
+        && currentSnapshot.airborneTicks > 0 && !currentSnapshot.justLeftGround,
+      isFalling: currentSnapshot.isFalling,
+      reopenReady: record.reopenReady,
+    });
+    if (!decision.allow) {
+      record.previousJumpPressTick = decision.nextPressTick;
+      return;
+    }
+  }
+  const result = handleJump(record.state, currentSnapshot);
+  if (result.type === "ignored") {
+    record.previousJumpPressTick ??= system.currentTick;
+    return;
+  }
   record.state = result.state;
   if (result.type === "opening-started") {
+    record.previousJumpPressTick = undefined;
+    record.reopenReady = false;
     playSound(player, "windglider.open");
-    showTranslation(player, "windglider.opening", " …");
   } else if (result.type === "opening-cancelled" || result.type === "glider-closed") {
     endFlight(player, record);
+    record.reopenReady = true;
   }
 }
 
@@ -272,11 +289,11 @@ function tickPlayer(player) {
   const record = getRecord(player);
   const currentSnapshot = snapshot(player);
   updateAirborneHistory(record, currentSnapshot);
-  if (currentSnapshot.selectedGlider && !record.state.hintShown) {
-    showTranslation(player, "windglider.hint");
-    record.state.hintShown = true;
+  if (currentSnapshot.isOnGround || !currentSnapshot.selectedGlider) record.reopenReady = false;
+  if (currentSnapshot.isOnGround && Number.isInteger(record.previousJumpPressTick)
+      && system.currentTick - record.previousJumpPressTick > ACTIVATION_GAP_TICKS) {
+    record.previousJumpPressTick = undefined;
   }
-
   if (record.state.state === GLIDER_STATES.IDLE) return;
   const movement = player.inputInfo.getMovementVector();
   const result = tickGlider(record.state, currentSnapshot, movement);
@@ -290,14 +307,16 @@ function tickPlayer(player) {
     startGliding(player, record);
   }
   if (record.state.state === GLIDER_STATES.GLIDING) {
-    hideFoldedItem(player, true);
+    if (hasWallContact(player, record.state.heading, record.previousGlideLocation, record.glidingTicks)) {
+      endFlight(player, record, true);
+      return;
+    }
     updateGlidingPose(player, record, true, (error) => console.warn(`[windglider] player pose failed: ${error}`));
     applyVelocity(player, result.velocity ?? { x: 0, y: 0, z: 0 });
+    record.previousGlideLocation = { ...player.location };
+    record.glidingTicks++;
     startSlowFalling(player, record.state);
     if (record.state.openingTicks % 30 === 0) playSound(player, "windglider.wind", 0.12);
-  } else if (record.state.state === GLIDER_STATES.OPENING) {
-    const progress = Math.min(9, Math.floor((record.state.openingTicks / GLIDER_CONFIG.openingTicks) * 10));
-    showTranslation(player, "windglider.opening", ` ${"▰".repeat(progress)}${"▱".repeat(10 - progress)}`);
   }
   ensureDisplay(player, record, {
     entityId: DISPLAY_ENTITY_ID,

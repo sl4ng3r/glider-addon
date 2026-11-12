@@ -39,9 +39,10 @@ test("the first jump from the ground does not start the glider", () => {
 test("flight tuning and opening animation agree with the runtime pack", () => {
   assert.deepEqual(runtime.GLIDER_CONFIG, GLIDER_CONFIG);
   assert.equal(GLIDER_CONFIG.openingTicks, 6);
+  assert.equal(GLIDER_CONFIG.forwardSpeed, 7 / 20);
   assert.equal(GLIDER_CONFIG.descentSpeed, 1.5 / 20);
-  assert.equal(GLIDER_CONFIG.maxTurnRate, 20 * Math.PI / 180 / 20);
-  assert.equal(GLIDER_CONFIG.cameraTurnRate, 10 * Math.PI / 180 / 20);
+  assert.equal(GLIDER_CONFIG.maxTurnRate, 16 * Math.PI / 180 / 20);
+  assert.equal(GLIDER_CONFIG.cameraTurnRate, 8 * Math.PI / 180 / 20);
   const animations = JSON.parse(readFileSync(new URL("../resource_packs/windglider_rp/animations/wind_glider.animation.json", import.meta.url), "utf8"));
   const opening = animations.animations["animation.wind_glider.open"];
   assert.equal(opening.animation_length, GLIDER_CONFIG.openingTicks / GLIDER_CONFIG.ticksPerSecond);

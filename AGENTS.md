@@ -6,7 +6,9 @@ Das Projekt ist ein Minecraft-Bedrock-Add-on mit einem Behavior Pack und einem R
 Die reine Fluglogik liegt in `src/flight/GliderStateMachine.mjs` und wird durch Node-Tests ohne Minecraft ausgeführt.
 `behavior_packs/windglider_bp/scripts/main.js` adaptiert die stabile Bedrock Script API auf diesen Zustandsautomaten.
 `behavior_packs/windglider_bp/scripts/display.js` verwaltet die separate Segel-Darstellung mit erneutem Spawn-Versuch im Spieltick.
-`behavior_packs/windglider_bp/scripts/visual-state.js` steuert die Sichtbarkeit des gefalteten Handmodells über eine eigene Item-Cooldown-Kategorie.
+Außerhalb der Dimensionshöhe wird die Anzeige ohne Spawn-Versuch ausgesetzt und nach Rückkehr in den gültigen Bereich neu erzeugt.
+`behavior_packs/windglider_bp/scripts/wall-collision.js` erkennt blockierte Vorwärtsbewegung an einer Wand und beendet den Flug.
+`behavior_packs/windglider_bp/scripts/jump-activation.js` begrenzt den Abstand zweier Sprung-Tastendrücke beim Öffnen auf 8 Ticks.
 
 ## Befehle
 
