@@ -15,7 +15,7 @@ import {
 import { updateGlidingPose } from "./player-pose.js";
 import { ensureDisplay, positionDisplay } from "./display.js";
 import { hasWallContact } from "./wall-collision.js";
-import { ACTIVATION_GAP_TICKS, advanceAirborneHistory, decideOpeningPress } from "./jump-activation.js";
+import { ACTIVATION_GAP_TICKS, advanceAirborneHistory, decideOpeningPress, updateWallLockout } from "./jump-activation.js";
 
 const GLIDER_ITEM_ID = "glider:glider";
 const DISPLAY_ENTITY_ID = "glider:display";
@@ -43,6 +43,7 @@ function getRecord(player) {
       previousGlideLocation: undefined,
       previousJumpPressTick: undefined,
       reopenReady: false,
+      wallLocked: false,
     };
     players.set(player.id, record);
   }
@@ -245,6 +246,7 @@ function applyVelocity(player, velocity) {
 function handleJumpPressed(player) {
   const record = getRecord(player);
   const currentSnapshot = snapshot(player, record);
+  record.wallLocked = updateWallLockout({ wallLocked: record.wallLocked, isOnGround: currentSnapshot.isOnGround });
   if (record.state.state === GLIDER_STATES.IDLE) {
     const decision = decideOpeningPress({
       currentTick: system.currentTick,
@@ -253,6 +255,7 @@ function handleJumpPressed(player) {
         && currentSnapshot.airborneTicks > 0 && !currentSnapshot.justLeftGround,
       airborneTicks: currentSnapshot.airborneTicks,
       reopenReady: record.reopenReady,
+      wallLocked: record.wallLocked,
     });
     if (!decision.allow) {
       record.previousJumpPressTick = decision.nextPressTick;
@@ -279,6 +282,7 @@ function tickPlayer(player) {
   const record = getRecord(player);
   const currentSnapshot = snapshot(player);
   updateAirborneHistory(record, currentSnapshot);
+  record.wallLocked = updateWallLockout({ wallLocked: record.wallLocked, isOnGround: currentSnapshot.isOnGround });
   if (currentSnapshot.isOnGround || !currentSnapshot.selectedGlider) record.reopenReady = false;
   if (currentSnapshot.isOnGround && Number.isInteger(record.previousJumpPressTick)
       && system.currentTick - record.previousJumpPressTick > ACTIVATION_GAP_TICKS) {
@@ -299,6 +303,7 @@ function tickPlayer(player) {
   if (record.state.state === GLIDER_STATES.GLIDING) {
     if (hasWallContact(player, record.state.heading, record.previousGlideLocation, record.glidingTicks)) {
       endFlight(player, record, true);
+      record.wallLocked = updateWallLockout({ wallLocked: record.wallLocked, hitWall: true });
       return;
     }
     updateGlidingPose(player, record, true, (error) => console.warn(`[windglider] player pose failed: ${error}`));

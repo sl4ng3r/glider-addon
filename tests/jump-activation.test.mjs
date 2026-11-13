@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ACTIVATION_GAP_TICKS, LONG_FALL_TICKS, advanceAirborneHistory, decideOpeningPress } from "../behavior_packs/windglider_bp/scripts/jump-activation.js";
+import { ACTIVATION_GAP_TICKS, LONG_FALL_TICKS, advanceAirborneHistory, decideOpeningPress, updateWallLockout } from "../behavior_packs/windglider_bp/scripts/jump-activation.js";
 
 test("a quick second press after takeoff starts opening", () => {
   assert.equal(ACTIVATION_GAP_TICKS, 8);
@@ -50,6 +50,26 @@ test("airborne time keeps counting across item selection and resets on landing",
 test("closing in mid-air permits reopening with one press", () => {
   assert.equal(decideOpeningPress({ currentTick: 400, canStart: true, reopenReady: true }).allow, true);
   assert.equal(decideOpeningPress({ currentTick: 400, canStart: false, reopenReady: true }).allow, false);
+});
+
+test("a wall impact blocks every opening press until landing", () => {
+  let wallLocked = updateWallLockout({ wallLocked: false, hitWall: true, isOnGround: false });
+  assert.equal(wallLocked, true);
+  for (const currentTick of [100, 103, 120]) {
+    assert.deepEqual(decideOpeningPress({
+      currentTick,
+      previousPressTick: 99,
+      canStart: true,
+      airborneTicks: LONG_FALL_TICKS,
+      reopenReady: true,
+      wallLocked,
+    }), { allow: false, nextPressTick: undefined });
+    wallLocked = updateWallLockout({ wallLocked, hitWall: false, isOnGround: false });
+    assert.equal(wallLocked, true);
+  }
+  wallLocked = updateWallLockout({ wallLocked, hitWall: false, isOnGround: true });
+  assert.equal(wallLocked, false);
+  assert.equal(decideOpeningPress({ currentTick: 130, canStart: true, airborneTicks: LONG_FALL_TICKS, wallLocked }).allow, true);
 });
 
 test("the activation window includes exactly eight ticks", () => {

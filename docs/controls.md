@@ -6,11 +6,11 @@
 4. Die Öffnung dauert 6 Ticks (0,3 Sekunden). Vor Ablauf gibt es keinen Fallschutz.
 5. Im Flug mit Links/Rechts sanft kurven. Ohne seitliche Eingabe folgt der Gleiter langsam der horizontalen Blickrichtung. Der Vortrieb bleibt ohne Vorwärtseingabe erhalten.
 6. Erneut springen, um den Gleiter einzuklappen und den freien Fall zu testen.
-7. Bei einem frontalen Wandaufprall klappt der Gleiter ebenfalls ein.
+7. Bei einem frontalen Wandaufprall klappt der Gleiter ebenfalls ein. Bis zur Landung kann er nicht wieder geöffnet werden; auch mehrfaches Springen ändert daran nichts.
 
 Oberhalb der Bauhöhen-Grenze bleibt die Flugfunktion aktiv, aber das separate Schirmmodell wird erst wieder innerhalb der gültigen Dimensionshöhe angezeigt.
 
 Für PS5 wird die importierte Welt über einen Realm bereitgestellt. Der Realm wird erst nach den lokalen Tests aktualisiert.
 Mitspieler laden die aktivierten Packs beim Beitritt herunter. Bei einem Update bleiben Pack-UUIDs und `glider:glider` erhalten.
 
-Beim Update zuerst eine Weltkopie anlegen, die neue `.mcaddon` importieren und in der Kopie prüfen, dass beide aktiven Windgleiter-Packs **1.0.25** anzeigen. Falls weiterhin eine ältere Version aktiv ist, diese in den Welteinstellungen deaktivieren und die neue Version aktivieren. Anschließend das Inventarsymbol und `/give @s glider:glider` prüfen. Den Realm erst nach erfolgreichem lokalem Test aktualisieren.
+Beim Update zuerst eine Weltkopie anlegen, die neue `.mcaddon` importieren und in der Kopie prüfen, dass beide aktiven Windgleiter-Packs **1.0.26** anzeigen. Falls weiterhin eine ältere Version aktiv ist, diese in den Welteinstellungen deaktivieren und die neue Version aktivieren. Anschließend das Inventarsymbol und `/give @s glider:glider` prüfen. Den Realm erst nach erfolgreichem lokalem Test aktualisieren.

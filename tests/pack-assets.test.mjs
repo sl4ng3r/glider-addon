@@ -51,6 +51,8 @@ test("controls appear in localized pack descriptions instead of the action bar",
     assert.match(german, /^pack\.description=.*0,4 s/m);
     assert.match(english, /^pack\.description=.*0\.8s/m);
     assert.match(german, /^pack\.description=.*0,8 s/m);
+    assert.match(english, /^pack\.description=.*wall.*land/mi);
+    assert.match(german, /^pack\.description=.*Wand.*Landung/mi);
     assert.doesNotMatch(english, /^windglider\.(hint|opening)=/m);
     assert.doesNotMatch(german, /^windglider\.(hint|opening)=/m);
   }

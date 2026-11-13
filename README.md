@@ -18,7 +18,7 @@ Das fertige Add-on liegt danach unter `dist/windgleiter.mcaddon`. Es enthält je
 - Kurzer Sprung: normal abspringen; innerhalb von 0,4 Sekunden erneut Springen drücken, um die Öffnung zu starten.
 - Längerer Sturz: nach mindestens 0,8 Sekunden in der Luft genügt ein Druck auf Springen, auch wenn der erste Sprung schon länger zurückliegt oder der Gleiter erst im Fall ausgewählt wurde.
 - Erneut Springen: Öffnung abbrechen oder geöffneten Gleiter einklappen.
-- Trifft der geöffnete Gleiter frontal auf eine Wand, klappt er ein und der normale Fall beginnt.
+- Trifft der geöffnete Gleiter frontal auf eine Wand, klappt er ein und der normale Fall beginnt. Er lässt sich erst nach der Landung erneut öffnen.
 - Links/Rechts: sanfte Kurven.
 - Ohne seitliche Eingabe richtet sich der Flug langsam zur horizontalen Blickrichtung aus.
 - Vorwärts/Rückwärts: beeinflusst den automatischen Vortrieb nicht.

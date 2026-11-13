@@ -1,6 +1,11 @@
 export const ACTIVATION_GAP_TICKS = 8;
 export const LONG_FALL_TICKS = 16;
 
+export function updateWallLockout({ wallLocked = false, hitWall = false, isOnGround = false }) {
+  if (hitWall) return true;
+  return isOnGround ? false : wallLocked;
+}
+
 export function advanceAirborneHistory(history, isOnGround) {
   if (isOnGround) return { airborneTicks: 0, wasOnGround: true, justLeftGround: false };
   return {
@@ -11,7 +16,8 @@ export function advanceAirborneHistory(history, isOnGround) {
 }
 
 // A short hop needs two presses; after a longer fall, one press is enough.
-export function decideOpeningPress({ currentTick, previousPressTick, canStart, airborneTicks = 0, reopenReady = false }) {
+export function decideOpeningPress({ currentTick, previousPressTick, canStart, airborneTicks = 0, reopenReady = false, wallLocked = false }) {
+  if (wallLocked) return { allow: false, nextPressTick: undefined };
   if (!canStart) return { allow: false, nextPressTick: currentTick };
   if (reopenReady || airborneTicks >= LONG_FALL_TICKS) {
     return { allow: true, nextPressTick: previousPressTick };
