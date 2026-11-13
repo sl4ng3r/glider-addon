@@ -9,6 +9,7 @@ Die reine Fluglogik liegt in `src/flight/GliderStateMachine.mjs` und wird durch 
 Außerhalb der Dimensionshöhe wird die Anzeige ohne Spawn-Versuch ausgesetzt und nach Rückkehr in den gültigen Bereich neu erzeugt.
 `behavior_packs/windglider_bp/scripts/wall-collision.js` erkennt blockierte Vorwärtsbewegung an einer Wand und beendet den Flug.
 `behavior_packs/windglider_bp/scripts/jump-activation.js` begrenzt den Abstand zweier Sprung-Tastendrücke beim Öffnen auf 8 Ticks.
+`behavior_packs/windglider_bp/scripts/fire-updraft.js` erkennt normales Feuer, brennende Lagerfeuer und sichtbare Lava in einer offenen Luftsäule. Ein Cache pro Spieler begrenzt die Vollsuche auf einmal je 3 Ticks; Quelle und Luftweg werden dazwischen weiter geprüft. `main.js` übergibt die Stärke nur beim Gleiten an `flight.js` und löscht sie beim Flugende. Die Flugberechnung liegt zusätzlich in `src/flight/GliderStateMachine.mjs`; beide Implementierungen müssen synchron bleiben. Aufwindradien und Höhe stehen in `THERMAL_CONFIG`, die maximale Steigrate in `GLIDER_CONFIG.updraftRiseSpeed`.
 
 ## Befehle
 

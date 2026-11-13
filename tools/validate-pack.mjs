@@ -94,6 +94,7 @@ if (itemTexture?.texture_data?.["glider:glider"]?.textures !== "textures/items/w
 const requiredFiles = [
   join(behavior, "scripts", "main.js"),
   join(behavior, "scripts", "flight.js"),
+  join(behavior, "scripts", "fire-updraft.js"),
   join(behavior, "scripts", "display.js"),
   join(behavior, "scripts", "wall-collision.js"),
   join(behavior, "scripts", "jump-activation.js"),

@@ -1,3 +1,3 @@
 item.glider:glider=Wind Glider
 pack.name=Wind Glider – Behavior
-pack.description=Short hop: press Jump again within 0.4s to open. Long fall: after 0.8s press Jump once to open. Press Jump again to close. After a wall impact, reopen only after landing.
+pack.description=Short hop: press Jump again within 0.4s to open. Long fall: after 0.8s press Jump once to open. Press Jump again to close. After a wall impact, reopen only after landing. An open glider gains lift over fire, lit campfires and exposed lava.

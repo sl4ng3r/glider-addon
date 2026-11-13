@@ -15,6 +15,7 @@ import {
 import { updateGlidingPose } from "./player-pose.js";
 import { ensureDisplay, positionDisplay } from "./display.js";
 import { hasWallContact } from "./wall-collision.js";
+import { sampleFireUpdraft } from "./fire-updraft.js";
 import { ACTIVATION_GAP_TICKS, advanceAirborneHistory, decideOpeningPress, updateWallLockout } from "./jump-activation.js";
 
 const GLIDER_ITEM_ID = "glider:glider";
@@ -44,6 +45,7 @@ function getRecord(player) {
       previousJumpPressTick: undefined,
       reopenReady: false,
       wallLocked: false,
+      thermalCache: undefined,
     };
     players.set(player.id, record);
   }
@@ -214,6 +216,7 @@ function closeDisplay(record, immediate = false) {
 
 function endFlight(player, record, immediateDisplay = false) {
   record.glidingTicks = 0;
+  record.thermalCache = undefined;
   record.previousGlideLocation = undefined;
   record.previousJumpPressTick = undefined;
   record.reopenReady = false;
@@ -290,6 +293,15 @@ function tickPlayer(player) {
   }
   if (record.state.state === GLIDER_STATES.IDLE) return;
   const movement = player.inputInfo.getMovementVector();
+  const thermal = sampleFireUpdraft({
+    dimension: player.dimension,
+    playerLocation: player.location,
+    currentTick: system.currentTick,
+    cache: record.thermalCache,
+    active: record.state.state === GLIDER_STATES.GLIDING,
+  });
+  record.thermalCache = thermal.cache;
+  currentSnapshot.updraftStrength = thermal.strength;
   const result = tickGlider(record.state, currentSnapshot, movement);
   record.state = result.state;
 

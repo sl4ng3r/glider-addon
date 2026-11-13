@@ -22,6 +22,9 @@ Das fertige Add-on liegt danach unter `dist/windgleiter.mcaddon`. Es enthält je
 - Links/Rechts: sanfte Kurven.
 - Ohne seitliche Eingabe richtet sich der Flug langsam zur horizontalen Blickrichtung aus.
 - Vorwärts/Rückwärts: beeinflusst den automatischen Vortrieb nicht.
+- Über normalem Feuer, brennenden Lagerfeuern und sichtbarer Lava trägt ein Aufwind den **geöffneten** Gleiter nach oben. Das Feuer muss unter freiem Luftraum liegen; Dächer und verdeckte Lava blockieren den Aufwind.
+
+Vier Lagerfeuer mit zunächst etwa **9 Blöcken Abstand** bilden einen möglichen Gleiterweg. Die Aufwindstärke nimmt seitlich und mit der Höhe ab: voller Aufwind bis 1,5 Blöcke seitlichem Abstand und 5 Blöcke über der Quelle, danach auslaufend bis 2,5 beziehungsweise 8 Blöcke. Die maximale Steigrate beträgt ungefähr 2,5 Blöcke pro Sekunde; die tatsächliche Reichweite hängt von Flugweg und Spieltempo ab und muss im Spiel abgestimmt werden. Seelenfeuer, Seelenlagerfeuer, Magmablöcke und erloschene Lagerfeuer geben keinen Aufwind.
 
 Die Kurzbedienung steht in der Pack-Beschreibung. Während des Spiels erscheinen keine eigenen Statusmeldungen in der Aktionsleiste.
 

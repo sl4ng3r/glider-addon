@@ -58,6 +58,28 @@ test("controls appear in localized pack descriptions instead of the action bar",
   }
 });
 
+test("fire updraft sampling is shipped, gliding-only, and cleaned up on exit", () => {
+  const sampler = readText("behavior_packs/windglider_bp/scripts/fire-updraft.js");
+  const main = readText("behavior_packs/windglider_bp/scripts/main.js");
+  const validator = readText("tools/validate-pack.mjs");
+  assert.match(sampler, /export function sampleFireUpdraft/);
+  assert.match(main, /import \{ sampleFireUpdraft \} from "\.\/fire-updraft\.js"/);
+  assert.match(main, /active: record\.state\.state === GLIDER_STATES\.GLIDING/);
+  assert.match(main, /currentSnapshot\.updraftStrength = thermal\.strength/);
+  assert.match(main, /record\.thermalCache = undefined/);
+  assert.ok(main.indexOf("currentSnapshot.updraftStrength = thermal.strength") < main.indexOf("const result = tickGlider(record.state, currentSnapshot, movement)"));
+  assert.match(validator, /join\(behavior, "scripts", "fire-updraft\.js"\)/);
+});
+
+test("both packs explain updraft sources in English and German", () => {
+  for (const pack of ["behavior_packs/windglider_bp", "resource_packs/windglider_rp"]) {
+    const english = readText(`${pack}/texts/en_US.lang`);
+    const german = readText(`${pack}/texts/de_DE.lang`);
+    assert.match(english, /^pack\.description=.*fire.*campfire.*lava/mi);
+    assert.match(german, /^pack\.description=.*Feuer.*Lagerfeuer.*Lava/mi);
+  }
+});
+
 test("creative category does not use an invalid unnamespaced group", () => {
   const menu = readJson("behavior_packs/windglider_bp/items/glider.json")["minecraft:item"].description.menu_category;
   assert.equal(menu.category, "items");
