@@ -9,6 +9,7 @@ export const GLIDER_CONFIG = Object.freeze({
   openingTicks: 6,
   forwardSpeed: 7 / 20,
   descentSpeed: 1.5 / 20,
+  updraftRiseSpeed: 2.5 / 20,
   maxTurnRate: (16 * Math.PI) / 180 / 20,
   cameraTurnRate: (8 * Math.PI) / 180 / 20,
   inputDeadzone: 0.2,
@@ -104,9 +105,11 @@ export function tickGlider(state, snapshot, input = { x: 0, y: 0 }) {
     turn = Math.max(-GLIDER_CONFIG.cameraTurnRate, Math.min(GLIDER_CONFIG.cameraTurnRate, angle));
   }
   const heading = turn === 0 ? state.heading : rotateHeading(state.heading, turn);
+  const strength = Number.isFinite(snapshot.updraftStrength)
+    ? Math.max(0, Math.min(1, snapshot.updraftStrength)) : 0;
   return {
     type: "gliding",
     state: { ...state, heading },
-    velocity: { x: heading.x * GLIDER_CONFIG.forwardSpeed, y: -GLIDER_CONFIG.descentSpeed, z: heading.z * GLIDER_CONFIG.forwardSpeed },
+    velocity: { x: heading.x * GLIDER_CONFIG.forwardSpeed, y: -GLIDER_CONFIG.descentSpeed + strength * (GLIDER_CONFIG.updraftRiseSpeed + GLIDER_CONFIG.descentSpeed), z: heading.z * GLIDER_CONFIG.forwardSpeed },
   };
 }
