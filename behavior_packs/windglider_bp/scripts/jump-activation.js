@@ -1,9 +1,19 @@
 export const ACTIVATION_GAP_TICKS = 8;
+export const LONG_FALL_TICKS = 16;
 
-// A ground jump arms a short second-press window. A fall without a jump can open directly.
-export function decideOpeningPress({ currentTick, previousPressTick, canStart, isFalling = false, reopenReady = false }) {
+export function advanceAirborneHistory(history, isOnGround) {
+  if (isOnGround) return { airborneTicks: 0, wasOnGround: true, justLeftGround: false };
+  return {
+    airborneTicks: Math.min((history.airborneTicks ?? 0) + 1, LONG_FALL_TICKS),
+    wasOnGround: false,
+    justLeftGround: history.wasOnGround,
+  };
+}
+
+// A short hop needs two presses; after a longer fall, one press is enough.
+export function decideOpeningPress({ currentTick, previousPressTick, canStart, airborneTicks = 0, reopenReady = false }) {
   if (!canStart) return { allow: false, nextPressTick: currentTick };
-  if (reopenReady || (previousPressTick === undefined && isFalling)) {
+  if (reopenReady || airborneTicks >= LONG_FALL_TICKS) {
     return { allow: true, nextPressTick: previousPressTick };
   }
 

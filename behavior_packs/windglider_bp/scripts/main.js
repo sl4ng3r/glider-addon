@@ -15,7 +15,7 @@ import {
 import { updateGlidingPose } from "./player-pose.js";
 import { ensureDisplay, positionDisplay } from "./display.js";
 import { hasWallContact } from "./wall-collision.js";
-import { ACTIVATION_GAP_TICKS, decideOpeningPress } from "./jump-activation.js";
+import { ACTIVATION_GAP_TICKS, advanceAirborneHistory, decideOpeningPress } from "./jump-activation.js";
 
 const GLIDER_ITEM_ID = "glider:glider";
 const DISPLAY_ENTITY_ID = "glider:display";
@@ -80,7 +80,6 @@ function snapshot(player, history = {}) {
     isSwimming: player.isSwimming,
     isRiding,
     isElytraGliding: player.isGliding,
-    isFalling: player.isFalling,
     airborneTicks: history.airborneTicks ?? 0,
     justLeftGround: Boolean(history.justLeftGround),
     viewDirection: player.getViewDirection(),
@@ -89,16 +88,7 @@ function snapshot(player, history = {}) {
 }
 
 function updateAirborneHistory(record, currentSnapshot) {
-  if (!currentSnapshot.selectedGlider || currentSnapshot.isOnGround) {
-    record.airborneTicks = 0;
-    record.wasOnGround = currentSnapshot.isOnGround;
-    record.justLeftGround = false;
-    return;
-  }
-
-  record.justLeftGround = record.wasOnGround;
-  record.wasOnGround = false;
-  record.airborneTicks = Math.min(record.airborneTicks + 1, 2);
+  Object.assign(record, advanceAirborneHistory(record, currentSnapshot.isOnGround));
 }
 
 function headingYaw(heading) {
@@ -261,7 +251,7 @@ function handleJumpPressed(player) {
       previousPressTick: record.previousJumpPressTick,
       canStart: currentSnapshot.selectedGlider && !currentSnapshot.isOnGround
         && currentSnapshot.airborneTicks > 0 && !currentSnapshot.justLeftGround,
-      isFalling: currentSnapshot.isFalling,
+      airborneTicks: currentSnapshot.airborneTicks,
       reopenReady: record.reopenReady,
     });
     if (!decision.allow) {

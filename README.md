@@ -15,7 +15,8 @@ Das fertige Add-on liegt danach unter `dist/windgleiter.mcaddon`. Es enthält je
 ## Bedienung
 
 - Gleiter auswählen: gefaltet in der Hand sichtbar.
-- Erster Sprung: normal abspringen; innerhalb von 0,4 Sekunden erneut Springen drücken, um die Öffnung zu starten. Wer ohne Sprung von einer Kante fällt, kann den Gleiter mit einem Druck in der Luft öffnen.
+- Kurzer Sprung: normal abspringen; innerhalb von 0,4 Sekunden erneut Springen drücken, um die Öffnung zu starten.
+- Längerer Sturz: nach mindestens 0,8 Sekunden in der Luft genügt ein Druck auf Springen, auch wenn der erste Sprung schon länger zurückliegt oder der Gleiter erst im Fall ausgewählt wurde.
 - Erneut Springen: Öffnung abbrechen oder geöffneten Gleiter einklappen.
 - Trifft der geöffnete Gleiter frontal auf eine Wand, klappt er ein und der normale Fall beginnt.
 - Links/Rechts: sanfte Kurven.
