@@ -10,9 +10,26 @@ export const THERMAL_CONFIG = Object.freeze({
 
 const LAVA_IDS = new Set(["minecraft:lava", "minecraft:flowing_lava"]);
 
+function blockTypeId(block) {
+  try {
+    return block?.typeId;
+  } catch {
+    return undefined;
+  }
+}
+
+function isAirBlock(block) {
+  try {
+    return typeof block?.typeId === "string" && block.isAir === true;
+  } catch {
+    return false;
+  }
+}
+
 export function isActiveHeatSource(block) {
-  if (block?.typeId === "minecraft:fire" || LAVA_IDS.has(block?.typeId)) return true;
-  if (block?.typeId !== "minecraft:campfire") return false;
+  const typeId = blockTypeId(block);
+  if (typeId === "minecraft:fire" || LAVA_IDS.has(typeId)) return true;
+  if (typeId !== "minecraft:campfire") return false;
   try {
     return block.permutation.getState("extinguished") === false;
   } catch {
@@ -48,7 +65,7 @@ function exposedSource(dimension, playerLocation, source) {
   if (!isActiveHeatSource(safeBlock(dimension, source))) return false;
   const top = Math.floor(playerLocation.y);
   for (let y = source.y + 1; y < top; y++) {
-    if (!safeBlock(dimension, { x: source.x, y, z: source.z })?.isAir) return false;
+    if (!isAirBlock(safeBlock(dimension, { x: source.x, y, z: source.z }))) return false;
   }
   return true;
 }
@@ -58,7 +75,7 @@ export function sampleFireUpdraft({ dimension, playerLocation, currentTick, cach
   const head = safeBlock(dimension, {
     x: Math.floor(playerLocation.x), y: Math.floor(playerLocation.y) + 2, z: Math.floor(playerLocation.z),
   });
-  if (!head?.isAir) return { strength: 0, cache: undefined };
+  if (!isAirBlock(head)) return { strength: 0, cache: undefined };
 
   if (cache?.dimensionId === dimension.id && currentTick < cache.nextScanTick) {
     const source = exposedSource(dimension, playerLocation, cache.source) ? cache.source : undefined;
@@ -88,7 +105,7 @@ export function sampleFireUpdraft({ dimension, playerLocation, currentTick, cach
           if (currentStrength > strength) { strength = currentStrength; source = candidate; }
           break;
         }
-        if (!block.isAir) break;
+        if (!isAirBlock(block)) break;
       }
     }
   }

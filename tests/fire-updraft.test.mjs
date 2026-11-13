@@ -125,6 +125,29 @@ test("unavailable_blocks_fail_closed", () => {
   assert.equal(sampleFireUpdraft({ dimension: high, playerLocation, currentTick: 10, active: true }).strength, 0);
 });
 
+test("throwing block getters stop lift without interrupting the sampler", () => {
+  const throwsOnAir = { typeId: "minecraft:air", get isAir() { throw Error("unloaded chunk"); } };
+  const throwsOnType = { isAir: false, get typeId() { throw Error("unloaded chunk"); } };
+  const blockedHead = fakeDimension();
+  blockedHead.set(0, 71, 0, throwsOnAir);
+  assert.equal(sampleFireUpdraft({ dimension: blockedHead, playerLocation, currentTick: 10, active: true }).strength, 0);
+
+  const blockedPath = fakeDimension();
+  blockedPath.set(0, 64, 0, place("minecraft:fire"));
+  blockedPath.set(0, 67, 0, throwsOnAir);
+  assert.equal(sampleFireUpdraft({ dimension: blockedPath, playerLocation, currentTick: 10, active: true }).strength, 0);
+
+  const invalidSource = fakeDimension();
+  invalidSource.set(0, 64, 0, throwsOnType);
+  assert.equal(sampleFireUpdraft({ dimension: invalidSource, playerLocation, currentTick: 10, active: true }).strength, 0);
+
+  const cached = fakeDimension();
+  cached.set(0, 64, 0, place("minecraft:fire"));
+  const first = sampleFireUpdraft({ dimension: cached, playerLocation, currentTick: 10, active: true });
+  cached.set(0, 64, 0, throwsOnType);
+  assert.equal(sampleFireUpdraft({ dimension: cached, playerLocation, currentTick: 11, cache: first.cache, active: true }).strength, 0);
+});
+
 test("multiple_sources_do_not_stack", () => {
   const dimension = fakeDimension();
   dimension.set(0, 64, 0, place("minecraft:campfire", { extinguished: false }));
