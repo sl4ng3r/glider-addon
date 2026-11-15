@@ -24,7 +24,9 @@ Das fertige Add-on liegt danach unter `dist/windgleiter.mcaddon`. Es enthält je
 - Vorwärts/Rückwärts: beeinflusst den automatischen Vortrieb nicht.
 - Über normalem Feuer, brennenden Lagerfeuern und sichtbarer Lava trägt ein Aufwind den **geöffneten** Gleiter nach oben. Das Feuer muss unter freiem Luftraum liegen; Dächer und verdeckte Lava blockieren den Aufwind.
 
-Vier Lagerfeuer mit zunächst etwa **9 Blöcken Abstand** bilden einen möglichen Gleiterweg. Die Aufwindstärke nimmt seitlich und mit der Höhe ab: voller Aufwind bis 2 Blöcke seitlichem Abstand und 17 Blöcke über der Quelle, danach auslaufend bis 3,5 beziehungsweise 24 Blöcke. Die maximale Ziel-Steigrate beträgt 20 Blöcke pro Sekunde; die tatsächlich erreichte Höhe hängt auch von Minecraft-Physik, Flugweg und Spieltempo ab und muss im Spiel geprüft werden. Seelenfeuer, Seelenlagerfeuer, Magmablöcke und erloschene Lagerfeuer geben keinen Aufwind.
+Vier getrennte Aufwindbereiche mit zunächst etwa **9 Blöcken Abstand** bilden einen Abschnitt einer Gleiterstraße. Benachbarte Feuerstellen addieren ihre Stärke nicht und zählen als ein Bereich. Nach dem vierten Bereich folgt eine Pause von **200 Spielticks (etwa 10 Sekunden)** ohne Aufwind. Danach sind während desselben Flugs weitere vier Bereiche nutzbar. Landen setzt eine angefangene Vierer-Serie zurück, aber eine Pause nach dem vierten Bereich läuft auch am Boden weiter. Einklappen in der Luft setzt weder die Serie noch die Pause zurück.
+
+Die Aufwindstärke nimmt seitlich und mit der Höhe ab: voller Aufwind bis 2 Blöcke seitlichem Abstand und 17 Blöcke über der Quelle, danach auslaufend bis 3,5 beziehungsweise 24 Blöcke. Die maximale Ziel-Steigrate beträgt 14 Blöcke pro Sekunde. Ein einzelnes Lagerfeuer bringt im Modell bei geradem Überflug ungefähr 10 Blöcke Höhengewinn; die tatsächlich erreichte Höhe hängt auch von Minecraft-Physik, Flugweg und Spieltempo ab und muss im Spiel geprüft werden. Seelenfeuer, Seelenlagerfeuer, Magmablöcke und erloschene Lagerfeuer geben keinen Aufwind.
 
 Die Kurzbedienung steht in der Pack-Beschreibung. Während des Spiels erscheinen keine eigenen Statusmeldungen in der Aktionsleiste.
 

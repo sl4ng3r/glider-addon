@@ -6,6 +6,9 @@ export const THERMAL_CONFIG = Object.freeze({
   scanIntervalTicks: 3,
   maxHorizontalOffset: 3,
   maxDepthBlocks: 25,
+  maxRouteZones: 4,
+  zoneGapTicks: 4,
+  routeCooldownTicks: 200,
 });
 
 const LAVA_IDS = new Set(["minecraft:lava", "minecraft:flowing_lava"]);
@@ -48,6 +51,42 @@ export function updraftStrength(playerLocation, sourceLocation, config = THERMAL
   const height = playerLocation.y - sourceLocation.y - 1;
   if (!Number.isFinite(distance) || !Number.isFinite(height) || height < 0) return 0;
   return fade(distance, config.innerRadius, config.outerRadius) * fade(height, config.fullHeight, config.maxHeight);
+}
+
+export function advanceThermalRoute(route, strength, config = THERMAL_CONFIG) {
+  const zonesUsed = route?.zonesUsed ?? 0;
+  const gapTicks = route?.gapTicks ?? config.zoneGapTicks;
+  const cooldownTicks = route?.cooldownTicks ?? 0;
+  const sourceStrength = Number.isFinite(strength) && strength > 0 ? Math.min(1, strength) : 0;
+
+  if (cooldownTicks > 0) {
+    const elapsed = cooldownTicks + 1;
+    if (elapsed >= config.routeCooldownTicks) return advanceThermalRoute(undefined, sourceStrength, config);
+    return {
+      strength: 0,
+      route: { zonesUsed, gapTicks: config.zoneGapTicks, cooldownTicks: elapsed },
+    };
+  }
+
+  if (sourceStrength === 0) {
+    const nextGapTicks = Math.min(config.zoneGapTicks, gapTicks + 1);
+    const finishedFourthZone = zonesUsed === config.maxRouteZones && nextGapTicks >= config.zoneGapTicks;
+    return {
+      strength: 0,
+      route: { zonesUsed, gapTicks: nextGapTicks, cooldownTicks: finishedFourthZone ? nextGapTicks : 0 },
+    };
+  }
+
+  const enteredNewZone = zonesUsed === 0 || gapTicks >= config.zoneGapTicks;
+  const nextZonesUsed = Math.min(config.maxRouteZones, zonesUsed + Number(enteredNewZone));
+  return {
+    strength: sourceStrength,
+    route: { zonesUsed: nextZonesUsed, gapTicks: 0, cooldownTicks: 0 },
+  };
+}
+
+export function thermalRouteAfterLanding(route, config = THERMAL_CONFIG) {
+  return (route?.zonesUsed ?? 0) >= config.maxRouteZones || (route?.cooldownTicks ?? 0) > 0 ? route : undefined;
 }
 
 function safeBlock(dimension, location) {
