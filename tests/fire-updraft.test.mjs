@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  THERMAL_CONFIG,
   isActiveHeatSource,
   updraftStrength,
   sampleFireUpdraft,
@@ -62,10 +63,14 @@ test("extinguished campfires and soul fire produce no lift", () => {
 });
 
 test("updraft fades to zero at its horizontal and vertical bounds", () => {
+  assert.equal(THERMAL_CONFIG.innerRadius, 2);
+  assert.equal(THERMAL_CONFIG.outerRadius, 3.5);
+  assert.equal(THERMAL_CONFIG.fullHeight, 7);
+  assert.equal(THERMAL_CONFIG.maxHeight, 11);
   assert.equal(updraftStrength(playerLocation, sourceLocation), 1);
-  assert.equal(updraftStrength({ x: 3, y: 69, z: 0.5 }, sourceLocation), 0);
-  assert.equal(updraftStrength({ x: 0.5, y: 73, z: 0.5 }, sourceLocation), 0);
-  assert.equal(updraftStrength({ x: 2.5, y: 71.5, z: 0.5 }, sourceLocation), 0.25);
+  assert.equal(updraftStrength({ x: 4, y: 69, z: 0.5 }, sourceLocation), 0);
+  assert.equal(updraftStrength({ x: 0.5, y: 76, z: 0.5 }, sourceLocation), 0);
+  assert.equal(updraftStrength({ x: 3.25, y: 74, z: 0.5 }, sourceLocation), 0.25);
   for (const location of [
     { x: 2.9, y: 72.9, z: 0.5 },
     { x: 0.5, y: 64.5, z: 0.5 },
@@ -74,6 +79,15 @@ test("updraft fades to zero at its horizontal and vertical bounds", () => {
     const strength = updraftStrength(location, sourceLocation);
     assert.ok(strength >= 0 && strength <= 1);
   }
+});
+
+test("wider and taller field finds a fire at its new horizontal and depth limits", () => {
+  const dimension = fakeDimension();
+  dimension.set(0, 64, 0, place("minecraft:fire"));
+  const side = sampleFireUpdraft({ dimension, playerLocation: { x: 3.5, y: 69, z: 0.5 }, currentTick: 10, active: true });
+  assert.ok(side.strength > 0, "a fire three blocks to the side must be found");
+  const high = sampleFireUpdraft({ dimension, playerLocation: { x: 0.5, y: 75, z: 0.5 }, currentTick: 13, active: true });
+  assert.ok(high.strength > 0, "a fire ten blocks below the player must be found");
 });
 
 test("cached_source_extinguished_stops_lift", () => {
@@ -181,7 +195,7 @@ test("inactive_flight_clears_thermal_cache", () => {
 test("scheduled scans are bounded and dimension changes discard the old source", () => {
   const empty = fakeDimension();
   const first = sampleFireUpdraft({ dimension: empty, playerLocation, currentTick: 10, active: true });
-  assert.ok(empty.reads <= 201, `empty search read ${empty.reads} blocks`);
+  assert.ok(empty.reads <= 589, `empty search read ${empty.reads} blocks`);
   const before = empty.reads;
   sampleFireUpdraft({ dimension: empty, playerLocation, currentTick: 11, cache: first.cache, active: true });
   assert.ok(empty.reads - before <= 1, "the next tick must reuse the scheduled no-source result");

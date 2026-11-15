@@ -1,11 +1,11 @@
 export const THERMAL_CONFIG = Object.freeze({
-  innerRadius: 1.5,
-  outerRadius: 2.5,
-  fullHeight: 5,
-  maxHeight: 8,
+  innerRadius: 2,
+  outerRadius: 3.5,
+  fullHeight: 7,
+  maxHeight: 11,
   scanIntervalTicks: 3,
-  maxHorizontalOffset: 2,
-  maxDepthBlocks: 8,
+  maxHorizontalOffset: 3,
+  maxDepthBlocks: 12,
 });
 
 const LAVA_IDS = new Set(["minecraft:lava", "minecraft:flowing_lava"]);

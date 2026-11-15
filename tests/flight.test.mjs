@@ -9,7 +9,7 @@ import {
 } from "../src/flight/GliderStateMachine.mjs";
 import * as runtime from "../behavior_packs/windglider_bp/scripts/flight.js";
 import { readFileSync } from "node:fs";
-import { updraftStrength } from "../behavior_packs/windglider_bp/scripts/fire-updraft.js";
+import { sampleFireUpdraft } from "../behavior_packs/windglider_bp/scripts/fire-updraft.js";
 
 const airborne = {
   selectedGlider: true,
@@ -42,6 +42,7 @@ test("flight tuning and opening animation agree with the runtime pack", () => {
   assert.equal(GLIDER_CONFIG.openingTicks, 6);
   assert.equal(GLIDER_CONFIG.forwardSpeed, 7 / 20);
   assert.equal(GLIDER_CONFIG.descentSpeed, 1.5 / 20);
+  assert.equal(GLIDER_CONFIG.updraftRiseSpeed, 8 / 20);
   assert.equal(GLIDER_CONFIG.maxTurnRate, 16 * Math.PI / 180 / 20);
   assert.equal(GLIDER_CONFIG.cameraTurnRate, 8 * Math.PI / 180 / 20);
   const animations = JSON.parse(readFileSync(new URL("../resource_packs/windglider_rp/animations/wind_glider.animation.json", import.meta.url), "utf8"));
@@ -132,7 +133,7 @@ test("updraft changes only vertical speed and stays bounded in both implementati
   for (const implementation of [{ createPlayerGliderState, handleJump, tickGlider }, runtime]) {
     let state = implementation.handleJump(implementation.createPlayerGliderState(), airborne).state;
     for (let i = 0; i < GLIDER_CONFIG.openingTicks; i++) state = implementation.tickGlider(state, airborne).state;
-    const expected = new Map([[0, -1.5 / 20], [0.5, 0.5 / 20], [1, 2.5 / 20], [2, 2.5 / 20], [NaN, -1.5 / 20]]);
+    const expected = new Map([[0, -1.5 / 20], [0.5, 3.25 / 20], [1, 8 / 20], [2, 8 / 20], [NaN, -1.5 / 20]]);
     const neutral = implementation.tickGlider(state, airborne, { x: 0, y: 0 });
     for (const [strength, rise] of expected) {
       const result = implementation.tickGlider(state, { ...airborne, updraftStrength: strength }, { x: 0, y: 0 });
@@ -146,21 +147,44 @@ test("updraft changes only vertical speed and stays bounded in both implementati
   }
 });
 
-test("four campfires form a route without unbounded ascent", () => {
+function simulateFireRoute(implementation, sourcePositions, startZ, endZ) {
+  let state = implementation.handleJump(implementation.createPlayerGliderState(), airborne).state;
+  for (let i = 0; i < GLIDER_CONFIG.openingTicks; i++) state = implementation.tickGlider(state, airborne).state;
+  const air = { typeId: "minecraft:air", isAir: true };
+  const campfire = { typeId: "minecraft:campfire", isAir: false, permutation: { getState: () => false } };
+  const dimension = {
+    id: "overworld",
+    heightRange: { min: -64, max: 320 },
+    getBlock({ x, y, z }) {
+      return x === 0 && y === 64 && sourcePositions.includes(z) ? campfire : air;
+    },
+  };
+  const location = { x: 0.5, y: 69, z: startZ };
+  let cache;
+  let currentTick = 0;
+  while (location.z < endZ) {
+    const thermal = sampleFireUpdraft({ dimension, playerLocation: location, currentTick: currentTick++, cache, active: true });
+    cache = thermal.cache;
+    const result = implementation.tickGlider(state, { ...airborne, updraftStrength: thermal.strength });
+    state = result.state;
+    location.x += result.velocity.x;
+    location.y += result.velocity.y;
+    location.z += result.velocity.z;
+    assert.ok(location.y <= 76, `route exceeded source top plus 11 blocks: ${location.y}`);
+  }
+  return location.y;
+}
+
+test("one fire gives a clearly visible climb during a straight pass", () => {
   for (const implementation of [{ createPlayerGliderState, handleJump, tickGlider }, runtime]) {
-    let state = implementation.handleJump(implementation.createPlayerGliderState(), airborne).state;
-    for (let i = 0; i < GLIDER_CONFIG.openingTicks; i++) state = implementation.tickGlider(state, airborne).state;
-    const sources = [0, 9, 18, 27].map((z) => ({ x: 0, y: 64, z }));
-    const location = { x: 0.5, y: 69, z: 0.5 };
-    while (location.z < 28) {
-      const strength = Math.max(...sources.map((source) => updraftStrength(location, source)));
-      const result = implementation.tickGlider(state, { ...airborne, updraftStrength: strength });
-      state = result.state;
-      location.x += result.velocity.x;
-      location.y += result.velocity.y;
-      location.z += result.velocity.z;
-      assert.ok(location.y <= 73, `route exceeded source top plus 8 blocks: ${location.y}`);
-    }
-    assert.ok(location.y >= 68, `route lost too much height: ${location.y}`);
+    const endY = simulateFireRoute(implementation, [0], -4, 4);
+    assert.ok(endY >= 73, `single fire gave too little lift: ${endY}`);
+  }
+});
+
+test("four campfires nine blocks apart provide sustained climb without unbounded ascent", () => {
+  for (const implementation of [{ createPlayerGliderState, handleJump, tickGlider }, runtime]) {
+    const endY = simulateFireRoute(implementation, [0, 9, 18, 27], -4, 31);
+    assert.ok(endY >= 74.5, `campfire route gave too little lift: ${endY}`);
   }
 });
