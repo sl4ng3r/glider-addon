@@ -42,7 +42,7 @@ test("flight tuning and opening animation agree with the runtime pack", () => {
   assert.equal(GLIDER_CONFIG.openingTicks, 6);
   assert.equal(GLIDER_CONFIG.forwardSpeed, 7 / 20);
   assert.equal(GLIDER_CONFIG.descentSpeed, 1.5 / 20);
-  assert.equal(GLIDER_CONFIG.updraftRiseSpeed, 8 / 20);
+  assert.equal(GLIDER_CONFIG.updraftRiseSpeed, 20 / 20);
   assert.equal(GLIDER_CONFIG.maxTurnRate, 16 * Math.PI / 180 / 20);
   assert.equal(GLIDER_CONFIG.cameraTurnRate, 8 * Math.PI / 180 / 20);
   const animations = JSON.parse(readFileSync(new URL("../resource_packs/windglider_rp/animations/wind_glider.animation.json", import.meta.url), "utf8"));
@@ -133,7 +133,7 @@ test("updraft changes only vertical speed and stays bounded in both implementati
   for (const implementation of [{ createPlayerGliderState, handleJump, tickGlider }, runtime]) {
     let state = implementation.handleJump(implementation.createPlayerGliderState(), airborne).state;
     for (let i = 0; i < GLIDER_CONFIG.openingTicks; i++) state = implementation.tickGlider(state, airborne).state;
-    const expected = new Map([[0, -1.5 / 20], [0.5, 3.25 / 20], [1, 8 / 20], [2, 8 / 20], [NaN, -1.5 / 20]]);
+    const expected = new Map([[0, -1.5 / 20], [0.5, 9.25 / 20], [1, 20 / 20], [2, 20 / 20], [NaN, -1.5 / 20]]);
     const neutral = implementation.tickGlider(state, airborne, { x: 0, y: 0 });
     for (const [strength, rise] of expected) {
       const result = implementation.tickGlider(state, { ...airborne, updraftStrength: strength }, { x: 0, y: 0 });
@@ -170,7 +170,7 @@ function simulateFireRoute(implementation, sourcePositions, startZ, endZ) {
     location.x += result.velocity.x;
     location.y += result.velocity.y;
     location.z += result.velocity.z;
-    assert.ok(location.y <= 76, `route exceeded source top plus 11 blocks: ${location.y}`);
+    assert.ok(location.y <= 89, `route exceeded source top plus 24 blocks: ${location.y}`);
   }
   return location.y;
 }
@@ -178,13 +178,13 @@ function simulateFireRoute(implementation, sourcePositions, startZ, endZ) {
 test("one fire gives a clearly visible climb during a straight pass", () => {
   for (const implementation of [{ createPlayerGliderState, handleJump, tickGlider }, runtime]) {
     const endY = simulateFireRoute(implementation, [0], -4, 4);
-    assert.ok(endY >= 73, `single fire gave too little lift: ${endY}`);
+    assert.ok(endY >= 83.6, `single fire gave too little lift: ${endY}`);
   }
 });
 
 test("four campfires nine blocks apart provide sustained climb without unbounded ascent", () => {
   for (const implementation of [{ createPlayerGliderState, handleJump, tickGlider }, runtime]) {
     const endY = simulateFireRoute(implementation, [0, 9, 18, 27], -4, 31);
-    assert.ok(endY >= 74.5, `campfire route gave too little lift: ${endY}`);
+    assert.ok(endY >= 87.5, `campfire route gave too little lift: ${endY}`);
   }
 });

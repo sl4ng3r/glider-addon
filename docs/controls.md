@@ -14,4 +14,4 @@ Oberhalb der Bauhöhen-Grenze bleibt die Flugfunktion aktiv, aber das separate S
 Für PS5 wird die importierte Welt über einen Realm bereitgestellt. Der Realm wird erst nach den lokalen Tests aktualisiert.
 Mitspieler laden die aktivierten Packs beim Beitritt herunter. Bei einem Update bleiben Pack-UUIDs und `glider:glider` erhalten.
 
-Beim Update zuerst eine Weltkopie anlegen, die neue `.mcaddon` importieren und in der Kopie prüfen, dass beide aktiven Windgleiter-Packs **1.0.28** anzeigen. Falls weiterhin eine ältere Version aktiv ist, diese in den Welteinstellungen deaktivieren und die neue Version aktivieren. Anschließend das Inventarsymbol und `/give @s glider:glider` prüfen. Den Realm erst nach erfolgreichem lokalem Test aktualisieren.
+Beim Update zuerst eine Weltkopie anlegen, die neue `.mcaddon` importieren und in der Kopie prüfen, dass beide aktiven Windgleiter-Packs **1.0.29** anzeigen. Falls weiterhin eine ältere Version aktiv ist, diese in den Welteinstellungen deaktivieren und die neue Version aktivieren. Anschließend das Inventarsymbol und `/give @s glider:glider` prüfen. Den Realm erst nach erfolgreichem lokalem Test aktualisieren.

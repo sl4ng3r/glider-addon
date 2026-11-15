@@ -24,7 +24,7 @@ Das fertige Add-on liegt danach unter `dist/windgleiter.mcaddon`. Es enthält je
 - Vorwärts/Rückwärts: beeinflusst den automatischen Vortrieb nicht.
 - Über normalem Feuer, brennenden Lagerfeuern und sichtbarer Lava trägt ein Aufwind den **geöffneten** Gleiter nach oben. Das Feuer muss unter freiem Luftraum liegen; Dächer und verdeckte Lava blockieren den Aufwind.
 
-Vier Lagerfeuer mit zunächst etwa **9 Blöcken Abstand** bilden einen möglichen Gleiterweg. Die Aufwindstärke nimmt seitlich und mit der Höhe ab: voller Aufwind bis 2 Blöcke seitlichem Abstand und 7 Blöcke über der Quelle, danach auslaufend bis 3,5 beziehungsweise 11 Blöcke. Die maximale Ziel-Steigrate beträgt 8 Blöcke pro Sekunde; die tatsächlich erreichte Höhe hängt auch von Minecraft-Physik, Flugweg und Spieltempo ab und muss im Spiel geprüft werden. Seelenfeuer, Seelenlagerfeuer, Magmablöcke und erloschene Lagerfeuer geben keinen Aufwind.
+Vier Lagerfeuer mit zunächst etwa **9 Blöcken Abstand** bilden einen möglichen Gleiterweg. Die Aufwindstärke nimmt seitlich und mit der Höhe ab: voller Aufwind bis 2 Blöcke seitlichem Abstand und 17 Blöcke über der Quelle, danach auslaufend bis 3,5 beziehungsweise 24 Blöcke. Die maximale Ziel-Steigrate beträgt 20 Blöcke pro Sekunde; die tatsächlich erreichte Höhe hängt auch von Minecraft-Physik, Flugweg und Spieltempo ab und muss im Spiel geprüft werden. Seelenfeuer, Seelenlagerfeuer, Magmablöcke und erloschene Lagerfeuer geben keinen Aufwind.
 
 Die Kurzbedienung steht in der Pack-Beschreibung. Während des Spiels erscheinen keine eigenen Statusmeldungen in der Aktionsleiste.
 
