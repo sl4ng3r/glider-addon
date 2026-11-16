@@ -30,6 +30,19 @@ test("the folded hand model hides through the player pose without a hotbar coold
   assert.deepEqual(pose.bones.rightitem.scale, [0, 0, 0]);
 });
 
+test("the held glider disappears only in first person while its inventory icon remains", () => {
+  const item = readJson("behavior_packs/windglider_bp/items/glider.json")["minecraft:item"];
+  const attachable = readJson("resource_packs/windglider_rp/attachables/glider.player.json")["minecraft:attachable"].description;
+  const animations = readJson("resource_packs/windglider_rp/animations/wind_glider.animation.json").animations;
+  const firstPerson = animations[attachable.animations.hold_first_person];
+
+  assert.deepEqual(attachable.scripts.animate, [{ hold_first_person: "context.is_first_person == 1.0" }]);
+  assert.deepEqual(firstPerson.bones.root.scale, [0, 0, 0]);
+  assert.equal(attachable.geometry.default, "geometry.wind_glider.folded");
+  assert.equal(item.components["minecraft:icon"].textures.default, "glider:glider");
+  assert.equal(item.components["minecraft:cooldown"], undefined);
+});
+
 test("English and German resource translations name the item", () => {
   assert.match(readText("resource_packs/windglider_rp/texts/en_US.lang"), /^item\.glider:glider=Wind Glider$/m);
   assert.match(readText("resource_packs/windglider_rp/texts/de_DE.lang"), /^item\.glider:glider=Windgleiter$/m);

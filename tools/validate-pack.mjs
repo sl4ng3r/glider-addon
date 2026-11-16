@@ -64,6 +64,7 @@ if (!behaviorDependency) {
 }
 if (resourceManifest?.header?.pack_scope !== "world") errors.push("Resource Pack muss pack_scope world verwenden.");
 if (!behaviorManifest?.dependencies?.some((dependency) => dependency.module_name === "@minecraft/server" && dependency.version === "2.0.0")) errors.push("Stabile @minecraft/server-2.0.0-Abhängigkeit fehlt.");
+if (!behaviorManifest?.dependencies?.some((dependency) => dependency.module_name === "@minecraft/server-ui" && dependency.version === "2.0.0")) errors.push("Stabile @minecraft/server-ui-2.0.0-Abhängigkeit fehlt.");
 
 for (const pack of [behavior, resources]) {
   const languages = json(join(pack, "texts", "languages.json"));
@@ -82,14 +83,20 @@ for (const pack of [behavior, resources]) {
 
 const item = json(join(behavior, "items", "glider.json"));
 const recipe = json(join(behavior, "recipes", "wind_glider.json"));
+const guideItem = json(join(behavior, "items", "guide_book.json"));
+const guideRecipe = json(join(behavior, "recipes", "guide_book.json"));
 if (item?.["minecraft:item"]?.description?.identifier !== "glider:glider") errors.push("Item-ID glider:glider fehlt.");
 if (item?.["minecraft:item"]?.components?.["minecraft:display_name"]?.value !== "item.glider:glider") errors.push("Item-Übersetzungsschlüssel item.glider:glider fehlt.");
 if (item?.["minecraft:item"]?.components?.["minecraft:icon"]?.textures?.default !== "glider:glider") errors.push("Item-Icon-Key glider:glider fehlt in textures.default.");
 if (recipe?.["minecraft:recipe_shaped"]?.result?.item !== "glider:glider") errors.push("Rezept erzeugt nicht glider:glider.");
 if (recipe?.["minecraft:recipe_shaped"]?.pattern?.join("|") !== "LLL|SFS| S ") errors.push("Rezeptmuster entspricht nicht dem Plan.");
+if (guideItem?.["minecraft:item"]?.description?.identifier !== "glider:guide_book") errors.push("Handbuch-Item glider:guide_book fehlt.");
+if (guideItem?.["minecraft:item"]?.components?.["minecraft:icon"]?.textures?.default !== "glider:guide_book") errors.push("Handbuch-Icon-Key glider:guide_book fehlt.");
+if (guideRecipe?.["minecraft:recipe_shapeless"]?.result?.item !== "glider:guide_book") errors.push("Handbuch-Rezept erzeugt nicht glider:guide_book.");
 
 const itemTexture = json(join(resources, "textures", "item_texture.json"));
 if (itemTexture?.texture_data?.["glider:glider"]?.textures !== "textures/items/wind_glider") errors.push("Item-Textur glider:glider fehlt.");
+if (itemTexture?.texture_data?.["glider:guide_book"]?.textures !== "textures/items/book_written") errors.push("Handbuch-Textur glider:guide_book fehlt.");
 
 const requiredFiles = [
   join(behavior, "scripts", "main.js"),
@@ -98,6 +105,8 @@ const requiredFiles = [
   join(behavior, "scripts", "display.js"),
   join(behavior, "scripts", "wall-collision.js"),
   join(behavior, "scripts", "jump-activation.js"),
+  join(behavior, "scripts", "guide-book.js"),
+  join(behavior, "scripts", "guide-book-ui.js"),
   join(behavior, "entities", "glider_display.entity.json"),
   join(resources, "textures", "item_texture.json"),
   join(resources, "textures", "items", "wind_glider.png"),

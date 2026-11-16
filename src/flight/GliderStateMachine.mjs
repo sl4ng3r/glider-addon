@@ -7,11 +7,11 @@ export const GLIDER_STATES = Object.freeze({
 export const GLIDER_CONFIG = Object.freeze({
   ticksPerSecond: 20,
   openingTicks: 6,
-  forwardSpeed: 7 / 20,
+  forwardSpeed: 7.5 / 20,
   descentSpeed: 1.5 / 20,
-  updraftRiseSpeed: 14 / 20,
-  maxTurnRate: (16 * Math.PI) / 180 / 20,
-  cameraTurnRate: (8 * Math.PI) / 180 / 20,
+  updraftRiseSpeed: 18.25 / 20,
+  maxTurnRate: (18 * Math.PI) / 180 / 20,
+  cameraTurnRate: (9 * Math.PI) / 180 / 20,
   inputDeadzone: 0.2,
 });
 

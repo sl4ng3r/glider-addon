@@ -80,5 +80,5 @@ test("the sail sits closer above the player and leads in the flight direction", 
     { rotation: { x: 0, y: 45 } },
   ]);
   assert.equal(DISPLAY_Y_OFFSET, 1.12);
-  assert.equal(DISPLAY_LEAD_DISTANCE, 0.7);
+  assert.equal(DISPLAY_LEAD_DISTANCE, 0.95);
 });

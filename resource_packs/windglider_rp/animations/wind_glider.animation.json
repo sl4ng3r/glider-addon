@@ -61,9 +61,7 @@
       "loop": "hold_on_last_frame",
       "bones": {
         "root": {
-          "position": [2, -8, 1],
-          "rotation": [-24, -10, 8],
-          "scale": [0.42, 0.42, 0.42]
+          "scale": [0, 0, 0]
         }
       }
     }

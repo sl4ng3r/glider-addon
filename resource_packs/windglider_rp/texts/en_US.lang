@@ -1,3 +1,11 @@
 item.glider:glider=Wind Glider
+item.glider:guide_book=Wind Glider Guide
 pack.name=Wind Glider – Resources
 pack.description=Short hop: press Jump again within 0.4s to open. Long fall: after 0.8s press Jump once to open. Press Jump again to close. After a wall impact, reopen only after landing. An open glider gains lift over fire, lit campfires and exposed lava. Up to 4 heat zones, then a 10s pause.
+windglider.guide.page1=Wind Glider. Select the glider. On a short hop, press Jump again within 0.4s. After 0.8s in the air, one press starts opening. It takes 0.3s, with no fall protection during opening.
+windglider.guide.page2=Press Jump again to fold the glider. It flies forward on its own. Steer gently with Left/Right or by looking around. A wall hit folds it; you must land before reopening.
+windglider.guide.page3=Fire, lit campfires and exposed lava provide lift. Use four separate heat zones for a glider route. After the fourth zone, lift pauses for 10 seconds.
+windglider.guide.title=Wind Glider Guide
+windglider.guide.previous=Previous page
+windglider.guide.next=Next page
+windglider.guide.close=Close

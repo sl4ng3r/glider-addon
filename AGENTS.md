@@ -3,9 +3,11 @@
 ## Architektur
 
 Das Projekt ist ein Minecraft-Bedrock-Add-on mit einem Behavior Pack und einem Resource Pack.
+Das Attachable in `resource_packs/windglider_rp/attachables/glider.player.json` blendet nur das gefaltete Handmodell in der Ichperspektive über seine bedingte Animation aus. Die Außenansicht und das Inventarsymbol dürfen dabei nicht verschwinden; kein Hotbar-Cooldown zur Darstellungssteuerung verwenden.
+Das unabhängige `glider:guide_book` entsteht an der Werkbank aus Buch und Feder plus Papier. `guide-book-ui.js` zeigt drei lokalisierte Seiten über `@minecraft/server-ui` 2.0.0; `guide-book.js` hält die reine Seitennavigation. Der Gleiter wird für das Rezept weder benötigt noch verbraucht.
 Die reine Fluglogik liegt in `src/flight/GliderStateMachine.mjs` und wird durch Node-Tests ohne Minecraft ausgeführt.
 `behavior_packs/windglider_bp/scripts/main.js` adaptiert die stabile Bedrock Script API auf diesen Zustandsautomaten.
-`behavior_packs/windglider_bp/scripts/display.js` verwaltet die separate Segel-Darstellung mit erneutem Spawn-Versuch im Spieltick.
+`behavior_packs/windglider_bp/scripts/display.js` verwaltet die separate Segel-Darstellung mit erneutem Spawn-Versuch im Spieltick. `DISPLAY_LEAD_DISTANCE` bestimmt den Vorlauf des Schirms in Flugrichtung und muss im Realm visuell geprüft werden.
 Außerhalb der Dimensionshöhe wird die Anzeige ohne Spawn-Versuch ausgesetzt und nach Rückkehr in den gültigen Bereich neu erzeugt.
 `behavior_packs/windglider_bp/scripts/wall-collision.js` erkennt blockierte Vorwärtsbewegung an einer Wand und beendet den Flug.
 `behavior_packs/windglider_bp/scripts/jump-activation.js` begrenzt den Abstand zweier Sprung-Tastendrücke beim Öffnen auf 8 Ticks.

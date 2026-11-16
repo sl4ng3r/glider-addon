@@ -1,6 +1,6 @@
 {
   "name": "windgleiter-bedrock-addon",
-  "version": "1.0.30",
+  "version": "1.0.34",
   "private": true,
   "type": "module",
   "scripts": {

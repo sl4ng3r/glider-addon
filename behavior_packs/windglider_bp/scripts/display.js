@@ -1,6 +1,6 @@
 const RETRY_TICKS = 20;
 export const DISPLAY_Y_OFFSET = 1.12;
-export const DISPLAY_LEAD_DISTANCE = 0.7;
+export const DISPLAY_LEAD_DISTANCE = 0.95;
 
 function insideWorldHeight(dimension, y) {
   const range = dimension.heightRange;

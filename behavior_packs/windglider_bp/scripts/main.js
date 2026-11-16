@@ -17,6 +17,7 @@ import { ensureDisplay, positionDisplay } from "./display.js";
 import { hasWallContact } from "./wall-collision.js";
 import { sampleFireUpdraft, advanceThermalRoute, thermalRouteAfterLanding } from "./fire-updraft.js";
 import { ACTIVATION_GAP_TICKS, advanceAirborneHistory, decideOpeningPress, updateWallLockout } from "./jump-activation.js";
+import { showGuideBook } from "./guide-book-ui.js";
 
 const GLIDER_ITEM_ID = "glider:glider";
 const DISPLAY_ENTITY_ID = "glider:display";
@@ -354,6 +355,14 @@ function cleanupOrphans() {
 world.afterEvents.playerButtonInput.subscribe((event) => {
   if (event.button !== InputButton.Jump || event.newButtonState !== ButtonState.Pressed) return;
   handleJumpPressed(event.player);
+});
+
+system.beforeEvents.startup.subscribe((event) => {
+  event.itemComponentRegistry.registerCustomComponent("glider:read_guide", {
+    onUse({ source }) {
+      system.run(() => { void showGuideBook(source); });
+    },
+  });
 });
 
 world.afterEvents.playerLeave.subscribe((event) => {

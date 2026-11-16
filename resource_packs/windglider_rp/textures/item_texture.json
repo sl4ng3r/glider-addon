@@ -4,6 +4,9 @@
   "texture_data": {
     "glider:glider": {
       "textures": "textures/items/wind_glider"
+    },
+    "glider:guide_book": {
+      "textures": "textures/items/book_written"
     }
   }
 }
