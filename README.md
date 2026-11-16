@@ -32,6 +32,6 @@ Der normale Gleitflug hat 7,5 Blöcke Vortrieb pro Sekunde. Die maximale Drehung
 
 Die Kurzbedienung steht in der Pack-Beschreibung. Während des Spiels erscheinen keine eigenen Statusmeldungen in der Aktionsleiste.
 
-Ein unabhängiges, lesbares **Wind Glider Guide**-Buch lässt sich an der Werkbank aus **Buch und Feder + Papier** herstellen. Mit Benutzen öffnet sich ein dreiseitiges Handbuch. Die Texte und Schaltflächen folgen der gewählten Minecraft-Sprache: Englisch ist der Standard, Deutsch wird unterstützt. Das Buch ist auch im Kreativinventar und mit `/give @s glider:guide_book` verfügbar.
+Ein unabhängiges, lesbares **Wind Glider Guide**-Buch lässt sich an der Werkbank aus **Buch und Feder + Papier** herstellen. Mit Benutzen öffnet sich eine Seite mit kurzen Hinweisen zu Gleiten und Aufwind. Die Texte und Schaltflächen folgen der gewählten Minecraft-Sprache: Englisch ist der Standard, Deutsch wird unterstützt. Das Buch ist auch im Kreativinventar und mit `/give @s glider:guide_book` verfügbar.
 
 Die Pack- und Testanleitung liegt in `docs/controls.md`.

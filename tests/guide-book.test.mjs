@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { GUIDE_PAGE_KEYS, guideDestination } from "../behavior_packs/windglider_bp/scripts/guide-book.js";
+import { GUIDE_SECTION_KEYS, guideBody } from "../behavior_packs/windglider_bp/scripts/guide-book.js";
 
 const root = new URL("../", import.meta.url);
 const read = (path) => readFileSync(new URL(path, root), "utf8");
@@ -24,25 +24,30 @@ test("the independent guidebook is craftable from a book and quill plus paper", 
   assert.ok(recipe.ingredients.every(({ item: id }) => id !== "glider:glider"));
 });
 
-test("all book pages and controls have English and German text", () => {
-  assert.equal(GUIDE_PAGE_KEYS.length, 3);
+test("the one-page guide has two short sections in English and German", () => {
+  assert.equal(GUIDE_SECTION_KEYS.length, 2);
   for (const locale of ["en_US", "de_DE"]) {
     const entries = new Map(read(`resource_packs/windglider_rp/texts/${locale}.lang`).trim().split("\n").map((line) => line.split(/=(.*)/s).slice(0, 2)));
-    for (const key of ["item.glider:guide_book", "windglider.guide.title", "windglider.guide.previous", "windglider.guide.next", "windglider.guide.close", ...GUIDE_PAGE_KEYS]) {
+    for (const key of ["item.glider:guide_book", "windglider.guide.title", "windglider.guide.close", ...GUIDE_SECTION_KEYS.flat()]) {
       assert.ok(entries.get(key), `${locale} is missing ${key}`);
     }
-    for (const key of GUIDE_PAGE_KEYS) assert.ok(entries.get(key).length <= 240, `${locale} page ${key} is too long`);
+    for (const [, bodyKey] of GUIDE_SECTION_KEYS) {
+      assert.ok(entries.get(bodyKey).length <= 160, `${locale} section ${bodyKey} is too long`);
+      assert.doesNotMatch(entries.get(bodyKey), /0[,.]\d|\b(?:ticks?|seconds?|Sekunden?|Lagerfeuer|campfires?|Lava|lava)\b/i);
+    }
   }
 });
 
-test("book navigation stays within its three pages and closes on request", () => {
-  assert.equal(guideDestination(0, 0), 0);
-  assert.equal(guideDestination(0, 1), 1);
-  assert.equal(guideDestination(1, 1), 2);
-  assert.equal(guideDestination(2, 1), 2);
-  assert.equal(guideDestination(2, 0), 1);
-  assert.equal(guideDestination(1, 2), null);
-  assert.equal(guideDestination(1, undefined), null);
+test("guide body renders both sections on one page", () => {
+  assert.deepEqual(guideBody(), { rawtext: [
+    { translate: "windglider.guide.gliding.title" },
+    { text: "\n" },
+    { translate: "windglider.guide.gliding.body" },
+    { text: "\n\n" },
+    { translate: "windglider.guide.updraft.title" },
+    { text: "\n" },
+    { translate: "windglider.guide.updraft.body" },
+  ] });
 });
 
 test("the stable UI module is registered only for the guidebook", () => {
@@ -53,5 +58,6 @@ test("the stable UI module is registered only for the guidebook", () => {
   assert.match(main, /registerCustomComponent\("glider:read_guide"/);
   assert.match(main, /showGuideBook\(source\)/);
   assert.match(ui, /new ActionFormData\(\)/);
-  assert.match(ui, /body\(\{ translate: GUIDE_PAGE_KEYS\[pageIndex\] \}\)/);
+  assert.match(ui, /\.body\(guideBody\(\)\)/);
+  assert.doesNotMatch(ui, /windglider\.guide\.previous|windglider\.guide\.next/);
 });

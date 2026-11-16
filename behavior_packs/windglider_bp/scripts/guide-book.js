@@ -1,11 +1,18 @@
-export const GUIDE_PAGE_KEYS = Object.freeze([
-  "windglider.guide.page1",
-  "windglider.guide.page2",
-  "windglider.guide.page3",
+export const GUIDE_SECTION_KEYS = Object.freeze([
+  ["windglider.guide.gliding.title", "windglider.guide.gliding.body"],
+  ["windglider.guide.updraft.title", "windglider.guide.updraft.body"],
 ]);
 
-export function guideDestination(currentPage, selection) {
-  if (selection === 0) return Math.max(0, currentPage - 1);
-  if (selection === 1) return Math.min(GUIDE_PAGE_KEYS.length - 1, currentPage + 1);
-  return null;
+export function guideBody() {
+  return {
+    rawtext: [
+      { translate: GUIDE_SECTION_KEYS[0][0] },
+      { text: "\n" },
+      { translate: GUIDE_SECTION_KEYS[0][1] },
+      { text: "\n\n" },
+      { translate: GUIDE_SECTION_KEYS[1][0] },
+      { text: "\n" },
+      { translate: GUIDE_SECTION_KEYS[1][1] },
+    ],
+  };
 }
