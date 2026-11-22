@@ -40,9 +40,9 @@ test("the first jump from the ground does not start the glider", () => {
 test("flight tuning and opening animation agree with the runtime pack", () => {
   assert.deepEqual(runtime.GLIDER_CONFIG, GLIDER_CONFIG);
   assert.equal(GLIDER_CONFIG.openingTicks, 6);
-  assert.equal(GLIDER_CONFIG.forwardSpeed, 7.5 / 20);
-  assert.equal(GLIDER_CONFIG.descentSpeed, 1.4 / 20);
-  assert.equal(GLIDER_CONFIG.updraftRiseSpeed, 18.25 / 20);
+  assert.equal(GLIDER_CONFIG.forwardSpeed, 6.5 / 20);
+  assert.equal(GLIDER_CONFIG.descentSpeed, 1.3 / 20);
+  assert.equal(GLIDER_CONFIG.updraftRiseSpeed, 16.5 / 20);
   assert.equal(GLIDER_CONFIG.maxTurnRate, 18 * Math.PI / 180 / 20);
   assert.equal(GLIDER_CONFIG.cameraTurnRate, 9 * Math.PI / 180 / 20);
   const animations = JSON.parse(readFileSync(new URL("../resource_packs/windglider_rp/animations/wind_glider.animation.json", import.meta.url), "utf8"));
@@ -133,7 +133,7 @@ test("updraft changes only vertical speed and stays bounded in both implementati
   for (const implementation of [{ createPlayerGliderState, handleJump, tickGlider }, runtime]) {
     let state = implementation.handleJump(implementation.createPlayerGliderState(), airborne).state;
     for (let i = 0; i < GLIDER_CONFIG.openingTicks; i++) state = implementation.tickGlider(state, airborne).state;
-    const expected = new Map([[0, -1.4 / 20], [0.5, 8.425 / 20], [1, 18.25 / 20], [2, 18.25 / 20], [NaN, -1.4 / 20]]);
+    const expected = new Map([[0, -1.3 / 20], [0.5, 7.6 / 20], [1, 16.5 / 20], [2, 16.5 / 20], [NaN, -1.3 / 20]]);
     const neutral = implementation.tickGlider(state, airborne, { x: 0, y: 0 });
     for (const [strength, rise] of expected) {
       const result = implementation.tickGlider(state, { ...airborne, updraftStrength: strength }, { x: 0, y: 0 });

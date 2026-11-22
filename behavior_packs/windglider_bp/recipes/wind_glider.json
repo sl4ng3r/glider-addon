@@ -5,7 +5,7 @@
       "identifier": "glider:wind_glider"
     },
     "tags": ["crafting_table"],
-    "unlock": [{ "item": "minecraft:leather" }],
+    "unlock": { "context": "AlwaysUnlocked" },
     "pattern": [
       "LLL",
       "SFS",

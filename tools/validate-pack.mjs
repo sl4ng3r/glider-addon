@@ -90,9 +90,11 @@ if (item?.["minecraft:item"]?.components?.["minecraft:display_name"]?.value !== 
 if (item?.["minecraft:item"]?.components?.["minecraft:icon"]?.textures?.default !== "glider:glider") errors.push("Item-Icon-Key glider:glider fehlt in textures.default.");
 if (recipe?.["minecraft:recipe_shaped"]?.result?.item !== "glider:glider") errors.push("Rezept erzeugt nicht glider:glider.");
 if (recipe?.["minecraft:recipe_shaped"]?.pattern?.join("|") !== "LLL|SFS| S ") errors.push("Rezeptmuster entspricht nicht dem Plan.");
+if (recipe?.["minecraft:recipe_shaped"]?.unlock?.context !== "AlwaysUnlocked") errors.push("Windgleiter-Rezept muss im Rezeptbuch immer sichtbar sein.");
 if (guideItem?.["minecraft:item"]?.description?.identifier !== "glider:guide_book") errors.push("Handbuch-Item glider:guide_book fehlt.");
 if (guideItem?.["minecraft:item"]?.components?.["minecraft:icon"]?.textures?.default !== "glider:guide_book") errors.push("Handbuch-Icon-Key glider:guide_book fehlt.");
 if (guideRecipe?.["minecraft:recipe_shapeless"]?.result?.item !== "glider:guide_book") errors.push("Handbuch-Rezept erzeugt nicht glider:guide_book.");
+if (guideRecipe?.["minecraft:recipe_shapeless"]?.unlock?.context !== "AlwaysUnlocked") errors.push("Handbuch-Rezept muss im Rezeptbuch immer sichtbar sein.");
 
 const itemTexture = json(join(resources, "textures", "item_texture.json"));
 if (itemTexture?.texture_data?.["glider:glider"]?.textures !== "textures/items/wind_glider") errors.push("Item-Textur glider:glider fehlt.");

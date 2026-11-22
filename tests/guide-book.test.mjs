@@ -21,6 +21,7 @@ test("the independent guidebook is craftable from a book and quill plus paper", 
   assert.equal(recipe.result.item, "glider:guide_book");
   assert.deepEqual(recipe.ingredients.map(({ item: id }) => id).sort(), ["minecraft:paper", "minecraft:writable_book"]);
   assert.ok(recipe.tags.includes("crafting_table"));
+  assert.deepEqual(recipe.unlock, { context: "AlwaysUnlocked" });
   assert.ok(recipe.ingredients.every(({ item: id }) => id !== "glider:glider"));
 });
 

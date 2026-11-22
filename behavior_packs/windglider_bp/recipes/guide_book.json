@@ -8,6 +8,6 @@
       { "item": "minecraft:paper" }
     ],
     "result": { "item": "glider:guide_book", "count": 1 },
-    "unlock": [{ "item": "minecraft:writable_book" }]
+    "unlock": { "context": "AlwaysUnlocked" }
   }
 }

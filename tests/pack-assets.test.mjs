@@ -117,9 +117,9 @@ test("the display can be spawned by the Script API without adding a creative spa
   assert.equal(description.is_spawnable, false);
 });
 
-test("the crafting recipe is available after collecting leather", () => {
+test("the glider recipe is visible in the recipe book before collecting ingredients", () => {
   const recipe = readJson("behavior_packs/windglider_bp/recipes/wind_glider.json")["minecraft:recipe_shaped"];
-  assert.ok(recipe.unlock?.some((condition) => condition.item === "minecraft:leather"));
+  assert.deepEqual(recipe.unlock, { context: "AlwaysUnlocked" });
 });
 
 test("the folded model binds to the held item slot and uses a matching texture size", () => {
