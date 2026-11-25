@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import {
   THERMAL_CONFIG,
   advanceThermalRoute,
-  thermalRouteAfterLanding,
   isActiveHeatSource,
   updraftStrength,
   sampleFireUpdraft,
@@ -172,70 +171,47 @@ test("multiple_sources_do_not_stack", () => {
   assert.equal(sampleFireUpdraft({ dimension, playerLocation, currentTick: 10, active: true }).strength, 1);
 });
 
-test("four heat zones are followed by exactly 200 ticks without lift", () => {
-  assert.equal(THERMAL_CONFIG.maxRouteZones, 4);
-  assert.equal(THERMAL_CONFIG.zoneGapTicks, 4);
-  assert.equal(THERMAL_CONFIG.routeCooldownTicks, 200);
+test("an uninterrupted row of fires runs out of lift even without gaps between sources", () => {
   let route;
-  for (let zone = 1; zone <= 4; zone++) {
-    for (let tick = 0; tick < 6; tick++) {
-      const result = advanceThermalRoute(route, 1);
-      route = result.route;
-      assert.equal(result.strength, 1);
-      assert.equal(route.zonesUsed, zone);
-    }
-    for (let tick = 0; tick < 5; tick++) route = advanceThermalRoute(route, 0).route;
-  }
-  assert.equal(route.cooldownTicks, 5);
-  for (let elapsed = 5; elapsed < 199; elapsed++) {
-    const result = advanceThermalRoute(route, 1);
+  for (let x = 0; x < 28; x++) {
+    const result = advanceThermalRoute(route, { strength: 1, source: { x, y: 64, z: 0 }, currentTick: x });
+    assert.equal(result.strength, 1, `lift at X=${x}`);
     route = result.route;
-    assert.equal(result.strength, 0, `cooldown tick ${elapsed + 1} still blocks lift`);
   }
-  assert.equal(route.cooldownTicks, 199);
-  const resumed = advanceThermalRoute(route, 1);
-  assert.equal(resumed.strength, 1, "the next thermal is usable after 200 ticks");
-  assert.equal(resumed.route.zonesUsed, 1);
-  assert.equal(advanceThermalRoute(undefined, 1).strength, 1, "landing starts a fresh route");
+  const next = advanceThermalRoute(route, { strength: 1, source: { x: 28, y: 64, z: 0 }, currentTick: 28 });
+  assert.equal(next.strength, 0);
+  assert.equal(next.route.resumeAtTick, 228);
 });
 
-test("adjacent sources and brief scan gaps remain one heat zone", () => {
-  let route = advanceThermalRoute(undefined, 1).route;
-  for (let tick = 0; tick < 2; tick++) route = advanceThermalRoute(route, 0).route;
-  const adjacent = advanceThermalRoute(route, 0.8);
-  assert.equal(adjacent.route.zonesUsed, 1);
-  assert.equal(adjacent.strength, 0.8);
-  assert.equal(advanceThermalRoute(adjacent.route, 0.7).route.zonesUsed, 1);
+test("a new band must rise by ten blocks and starts with its own four zones", () => {
+  let route;
+  for (const [index, y] of [64, 67, 70, 73].entries()) {
+    const result = advanceThermalRoute(route, { strength: 1, source: { x: index * 9, y, z: 0 }, currentTick: index * 10 });
+    assert.equal(result.strength, 1);
+    route = result.route;
+  }
+  for (const y of [63, 73]) {
+    const blocked = advanceThermalRoute(route, { strength: 1, source: { x: 36, y, z: 0 }, currentTick: 40 });
+    assert.equal(blocked.strength, 0);
+    assert.equal(blocked.route.resumeAtTick, 234);
+    route = blocked.route;
+  }
+  const uphill = advanceThermalRoute(route, { strength: 0.8, source: { x: 45, y: 74, z: 0 }, currentTick: 50 });
+  assert.equal(uphill.strength, 0.8);
+  assert.equal(uphill.route.bandBaseY, 74);
+  assert.equal(uphill.route.zonesUsed, 1);
 });
 
-test("a brief gap within the fourth thermal does not start cooldown", () => {
+test("same-band sources work again exactly 200 ticks after leaving the fourth zone", () => {
   let route;
   for (let zone = 0; zone < 4; zone++) {
-    route = advanceThermalRoute(route, 1).route;
-    if (zone < 3) for (let gap = 0; gap < 4; gap++) route = advanceThermalRoute(route, 0).route;
+    route = advanceThermalRoute(route, { strength: 1, source: { x: zone * 9, y: 64, z: 0 }, currentTick: zone * 10 }).route;
   }
-  assert.equal(route.zonesUsed, 4);
-  for (let gap = 0; gap < 2; gap++) route = advanceThermalRoute(route, 0).route;
-  const continuing = advanceThermalRoute(route, 0.8);
-  assert.equal(continuing.strength, 0.8);
-  assert.equal(continuing.route.cooldownTicks, 0);
-  assert.equal(continuing.route.zonesUsed, 4);
-});
-
-test("landing resets an unfinished route but cannot bypass the ten-second pause", () => {
-  let partial = advanceThermalRoute(undefined, 1).route;
-  assert.equal(thermalRouteAfterLanding(partial), undefined);
-  for (let zone = 1; zone < 4; zone++) {
-    for (let gap = 0; gap < 4; gap++) partial = advanceThermalRoute(partial, 0).route;
-    partial = advanceThermalRoute(partial, 1).route;
-  }
-  assert.equal(partial.zonesUsed, 4);
-  let grounded = thermalRouteAfterLanding(partial);
-  assert.equal(grounded.zonesUsed, 4);
-  for (let tick = 0; tick < 5; tick++) grounded = advanceThermalRoute(grounded, 0).route;
-  assert.equal(grounded.cooldownTicks, 5);
-  assert.equal(thermalRouteAfterLanding(grounded).cooldownTicks, 5);
-  assert.equal(advanceThermalRoute(grounded, 1).strength, 0);
+  const source = { x: 36, y: 64, z: 0 };
+  assert.equal(advanceThermalRoute(route, { strength: 1, source, currentTick: 233 }).strength, 0);
+  const resumed = advanceThermalRoute(route, { strength: 1, source, currentTick: 234 });
+  assert.equal(resumed.strength, 1);
+  assert.equal(resumed.route.zonesUsed, 1);
 });
 
 test("independent_player_caches", () => {

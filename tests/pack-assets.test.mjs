@@ -76,16 +76,12 @@ test("fire updraft sampling is shipped, gliding-only, and cleaned up on exit", (
   const main = readText("behavior_packs/windglider_bp/scripts/main.js");
   const validator = readText("tools/validate-pack.mjs");
   assert.match(sampler, /export function sampleFireUpdraft/);
-  assert.match(main, /import \{ sampleFireUpdraft, advanceThermalRoute, thermalRouteAfterLanding \} from "\.\/fire-updraft\.js"/);
+  assert.match(main, /import \{[^}]*advanceThermalRoute[^}]*sampleFireUpdraft[^}]*\} from "\.\/fire-updraft\.js"/);
   assert.match(main, /active: record\.state\.state === GLIDER_STATES\.GLIDING/);
+  assert.match(main, /advanceThermalRoute\(previousRoute, \{\s*strength: thermal\.strength,\s*source: thermal\.cache\?\.source/);
   assert.match(main, /currentSnapshot\.updraftStrength = limitedThermal\.strength/);
   assert.match(main, /record\.thermalCache = undefined/);
-  assert.match(main, /if \(currentSnapshot\.isOnGround\) record\.thermalRoute = thermalRouteAfterLanding\(record\.thermalRoute\)/);
-  assert.match(main, /record\.thermalRoute = advanceThermalRoute\(record\.thermalRoute, 0\)\.route/);
-  assert.match(main, /const limitedThermal = advanceThermalRoute\(record\.thermalRoute, thermal\.strength\)/);
   assert.ok(main.indexOf("currentSnapshot.updraftStrength = limitedThermal.strength") < main.indexOf("const result = tickGlider(record.state, currentSnapshot, movement)"));
-  const endFlight = main.slice(main.indexOf("function endFlight"), main.indexOf("function applyVelocity"));
-  assert.doesNotMatch(endFlight, /thermalRoute = undefined/, "closing in mid-air keeps the four-zone limit");
   assert.match(validator, /join\(behavior, "scripts", "fire-updraft\.js"\)/);
 });
 
@@ -95,8 +91,6 @@ test("both packs explain updraft sources in English and German", () => {
     const german = readText(`${pack}/texts/de_DE.lang`);
     assert.match(english, /^pack\.description=.*fire.*campfire.*lava/mi);
     assert.match(german, /^pack\.description=.*Feuer.*Lagerfeuer.*Lava/mi);
-    assert.match(english, /4 heat zones.*10s.*pause/i);
-    assert.match(german, /4 Aufwindzonen.*10 s.*Pause/i);
   }
 });
 

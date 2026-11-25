@@ -1,10 +1,10 @@
 item.glider:glider=Windgleiter
 item.glider:guide_book=Windgleiter-Handbuch
 pack.name=Windgleiter – Ressourcen
-pack.description=Kurzer Sprung: innerhalb von 0,4 s erneut Springen zum Öffnen. Langer Sturz: nach 0,8 s einmal Springen. Erneut Springen zum Schließen. Nach Wandaufprall erst nach der Landung wieder öffnen. Mit offenem Gleiter über Feuer, brennende Lagerfeuer und sichtbare Lava fliegen: Aufwind. Höchstens 4 Aufwindzonen, danach 10 s Pause.
+pack.description=Kurzer Sprung: innerhalb von 0,4 s erneut Springen zum Öffnen. Langer Sturz: nach 0,8 s einmal Springen. Erneut Springen zum Schließen. Nach Wandaufprall erst nach der Landung wieder öffnen. Mit offenem Gleiter über Feuer, brennende Lagerfeuer und sichtbare Lava fliegen: Aufwind. Vier Aufwindzonen pro Höhenband, danach 10 s Pause. Eine Quelle 10 Blöcke über der ersten beginnt ein neues Band.
 windglider.guide.gliding.title=Gleiten
 windglider.guide.gliding.body=Halte den Windgleiter in der Hand. Drücke direkt nach dem Sprung noch einmal Springen. Wenn du länger fällst, reicht ein Druck in der Luft.
 windglider.guide.updraft.title=Aufwind
-windglider.guide.updraft.body=Fliege über heiße Quellen, um wieder Höhe zu gewinnen.
+windglider.guide.updraft.body=Heiße Quellen geben Aufwind. Auf ebener Strecke tragen dich bis zu vier davon nacheinander. Danach braucht der Gleiter eine kurze Pause.
 windglider.guide.title=Windgleiter-Handbuch
 windglider.guide.close=Schließen

@@ -6,8 +6,10 @@ export const THERMAL_CONFIG = Object.freeze({
   scanIntervalTicks: 3,
   maxHorizontalOffset: 3,
   maxDepthBlocks: 25,
+  routeBandHeight: 10,
   maxRouteZones: 4,
   zoneGapTicks: 4,
+  continuousZoneSpan: 7,
   routeCooldownTicks: 200,
 });
 
@@ -53,40 +55,47 @@ export function updraftStrength(playerLocation, sourceLocation, config = THERMAL
   return fade(distance, config.innerRadius, config.outerRadius) * fade(height, config.fullHeight, config.maxHeight);
 }
 
-export function advanceThermalRoute(route, strength, config = THERMAL_CONFIG) {
-  const zonesUsed = route?.zonesUsed ?? 0;
-  const gapTicks = route?.gapTicks ?? config.zoneGapTicks;
-  const cooldownTicks = route?.cooldownTicks ?? 0;
-  const sourceStrength = Number.isFinite(strength) && strength > 0 ? Math.min(1, strength) : 0;
-
-  if (cooldownTicks > 0) {
-    const elapsed = cooldownTicks + 1;
-    if (elapsed >= config.routeCooldownTicks) return advanceThermalRoute(undefined, sourceStrength, config);
-    return {
-      strength: 0,
-      route: { zonesUsed, gapTicks: config.zoneGapTicks, cooldownTicks: elapsed },
-    };
-  }
-
-  if (sourceStrength === 0) {
-    const nextGapTicks = Math.min(config.zoneGapTicks, gapTicks + 1);
-    const finishedFourthZone = zonesUsed === config.maxRouteZones && nextGapTicks >= config.zoneGapTicks;
-    return {
-      strength: 0,
-      route: { zonesUsed, gapTicks: nextGapTicks, cooldownTicks: finishedFourthZone ? nextGapTicks : 0 },
-    };
-  }
-
-  const enteredNewZone = zonesUsed === 0 || gapTicks >= config.zoneGapTicks;
-  const nextZonesUsed = Math.min(config.maxRouteZones, zonesUsed + Number(enteredNewZone));
+function startThermalBand(source, strength, currentTick) {
+  if (!source) return { strength: 0, route: undefined };
   return {
-    strength: sourceStrength,
-    route: { zonesUsed: nextZonesUsed, gapTicks: 0, cooldownTicks: 0 },
+    strength,
+    route: { bandBaseY: source.y, zonesUsed: 1, zoneStart: source, lastLiftTick: currentTick },
   };
 }
 
-export function thermalRouteAfterLanding(route, config = THERMAL_CONFIG) {
-  return (route?.zonesUsed ?? 0) >= config.maxRouteZones || (route?.cooldownTicks ?? 0) > 0 ? route : undefined;
+export function advanceThermalRoute(route, { strength, source, currentTick }, config = THERMAL_CONFIG) {
+  const activeSource = strength > 0 ? source : undefined;
+  if (!route || (activeSource && activeSource.y >= route.bandBaseY + config.routeBandHeight)) {
+    return startThermalBand(activeSource, strength, currentTick);
+  }
+
+  // The current tick counts toward the gap only if it has no source.
+  const gapTicks = currentTick - route.lastLiftTick - Number(Boolean(activeSource));
+  const leftZone = gapTicks >= config.zoneGapTicks;
+  const advancedAlongFire = activeSource && Math.hypot(
+    activeSource.x - route.zoneStart.x, activeSource.z - route.zoneStart.z,
+  ) >= config.continuousZoneSpan;
+  const nextZone = leftZone || advancedAlongFire;
+  let { resumeAtTick } = route;
+  if (resumeAtTick === undefined && route.zonesUsed === config.maxRouteZones && nextZone) {
+    const pauseStart = leftZone ? route.lastLiftTick + config.zoneGapTicks : currentTick;
+    resumeAtTick = pauseStart + config.routeCooldownTicks;
+  }
+  if (resumeAtTick !== undefined) {
+    if (currentTick >= resumeAtTick) return startThermalBand(activeSource, strength, currentTick);
+    return { strength: 0, route: { ...route, resumeAtTick } };
+  }
+
+  if (!activeSource) return { strength: 0, route };
+  return {
+    strength,
+    route: {
+      ...route,
+      zonesUsed: route.zonesUsed + Number(Boolean(nextZone)),
+      zoneStart: nextZone ? activeSource : route.zoneStart,
+      lastLiftTick: currentTick,
+    },
+  };
 }
 
 function safeBlock(dimension, location) {

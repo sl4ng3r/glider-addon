@@ -15,7 +15,7 @@ import {
 import { updateGlidingPose } from "./player-pose.js";
 import { ensureDisplay, positionDisplay } from "./display.js";
 import { hasWallContact } from "./wall-collision.js";
-import { sampleFireUpdraft, advanceThermalRoute, thermalRouteAfterLanding } from "./fire-updraft.js";
+import { THERMAL_CONFIG, advanceThermalRoute, sampleFireUpdraft } from "./fire-updraft.js";
 import { ACTIVATION_GAP_TICKS, advanceAirborneHistory, decideOpeningPress, updateWallLockout } from "./jump-activation.js";
 import { showGuideBook } from "./guide-book-ui.js";
 
@@ -48,6 +48,7 @@ function getRecord(player) {
       wallLocked: false,
       thermalCache: undefined,
       thermalRoute: undefined,
+      thermalRouteDimensionId: undefined,
     };
     players.set(player.id, record);
   }
@@ -287,28 +288,35 @@ function tickPlayer(player) {
   const record = getRecord(player);
   const currentSnapshot = snapshot(player);
   updateAirborneHistory(record, currentSnapshot);
-  if (currentSnapshot.isOnGround) record.thermalRoute = thermalRouteAfterLanding(record.thermalRoute);
+  if (currentSnapshot.isOnGround && record.thermalRoute?.zonesUsed < THERMAL_CONFIG.maxRouteZones) {
+    record.thermalRoute = undefined;
+  }
   record.wallLocked = updateWallLockout({ wallLocked: record.wallLocked, isOnGround: currentSnapshot.isOnGround });
   if (currentSnapshot.isOnGround || !currentSnapshot.selectedGlider) record.reopenReady = false;
   if (currentSnapshot.isOnGround && Number.isInteger(record.previousJumpPressTick)
       && system.currentTick - record.previousJumpPressTick > ACTIVATION_GAP_TICKS) {
     record.previousJumpPressTick = undefined;
   }
-  if (record.state.state === GLIDER_STATES.IDLE) {
-    if (!currentSnapshot.isOnGround || record.thermalRoute) record.thermalRoute = advanceThermalRoute(record.thermalRoute, 0).route;
-    return;
-  }
+  if (record.state.state === GLIDER_STATES.IDLE) return;
   const movement = player.inputInfo.getMovementVector();
+  const dimension = player.dimension;
+  const currentTick = system.currentTick;
   const thermal = sampleFireUpdraft({
-    dimension: player.dimension,
+    dimension,
     playerLocation: player.location,
-    currentTick: system.currentTick,
+    currentTick,
     cache: record.thermalCache,
     active: record.state.state === GLIDER_STATES.GLIDING && currentSnapshot.selectedGlider && !currentSnapshot.isOnGround,
   });
   record.thermalCache = thermal.cache;
-  const limitedThermal = advanceThermalRoute(record.thermalRoute, thermal.strength);
+  const previousRoute = record.thermalRouteDimensionId === dimension.id ? record.thermalRoute : undefined;
+  const limitedThermal = advanceThermalRoute(previousRoute, {
+    strength: thermal.strength,
+    source: thermal.cache?.source,
+    currentTick,
+  });
   record.thermalRoute = limitedThermal.route;
+  record.thermalRouteDimensionId = dimension.id;
   currentSnapshot.updraftStrength = limitedThermal.strength;
   const result = tickGlider(record.state, currentSnapshot, movement);
   record.state = result.state;
