@@ -1,4 +1,4 @@
-export const ACTIVATION_GAP_TICKS = 8;
+export const ACTIVATION_GAP_TICKS = 10;
 export const LONG_FALL_TICKS = 16;
 
 export function updateWallLockout({ wallLocked = false, hitWall = false, isOnGround = false }) {

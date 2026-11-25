@@ -60,8 +60,8 @@ test("controls appear in localized pack descriptions instead of the action bar",
     const german = readText(`${pack}/texts/de_DE.lang`);
     assert.match(english, /^pack\.description=.*Jump.*open.*Jump.*close/m);
     assert.match(german, /^pack\.description=.*Springen.*öffnen.*Springen.*schließen/mi);
-    assert.match(english, /^pack\.description=.*0\.4s/m);
-    assert.match(german, /^pack\.description=.*0,4 s/m);
+    assert.match(english, /^pack\.description=.*0\.5s/m);
+    assert.match(german, /^pack\.description=.*0,5 s/m);
     assert.match(english, /^pack\.description=.*0\.8s/m);
     assert.match(german, /^pack\.description=.*0,8 s/m);
     assert.match(english, /^pack\.description=.*wall.*land/mi);
@@ -100,8 +100,9 @@ test("creative category does not use an invalid unnamespaced group", () => {
   assert.ok(menu.group === undefined || /^[^:]+:.+$/.test(menu.group));
 });
 
-test("the display entity rejects damage using the current sensor schema", () => {
+test("the display entity has a zero-size collision box and rejects damage", () => {
   const entity = readJson("behavior_packs/windglider_bp/entities/glider_display.entity.json")["minecraft:entity"];
+  assert.deepEqual(entity.components["minecraft:collision_box"], { width: 0, height: 0 });
   assert.ok(entity.components["minecraft:damage_sensor"].triggers.some((trigger) => trigger.cause === "all" && trigger.deals_damage === "no"));
 });
 

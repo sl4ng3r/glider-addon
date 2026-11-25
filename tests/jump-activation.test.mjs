@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { ACTIVATION_GAP_TICKS, LONG_FALL_TICKS, advanceAirborneHistory, decideOpeningPress, updateWallLockout } from "../behavior_packs/windglider_bp/scripts/jump-activation.js";
 
 test("a quick second press after takeoff starts opening", () => {
-  assert.equal(ACTIVATION_GAP_TICKS, 8);
+  assert.equal(ACTIVATION_GAP_TICKS, 10);
   assert.equal(LONG_FALL_TICKS, 16);
   const first = decideOpeningPress({ currentTick: 100, canStart: false });
   assert.deepEqual(first, { allow: false, nextPressTick: 100 });
@@ -12,9 +12,9 @@ test("a quick second press after takeoff starts opening", () => {
 });
 
 test("a later press during a short hop starts a new pair instead of opening the sail", () => {
-  const secondHop = decideOpeningPress({ currentTick: 109, previousPressTick: 100, canStart: true, airborneTicks: LONG_FALL_TICKS - 1 });
-  assert.deepEqual(secondHop, { allow: false, nextPressTick: 109 });
-  assert.equal(decideOpeningPress({ currentTick: 112, previousPressTick: 109, canStart: true, airborneTicks: LONG_FALL_TICKS - 1 }).allow, true);
+  const secondHop = decideOpeningPress({ currentTick: 111, previousPressTick: 100, canStart: true, airborneTicks: LONG_FALL_TICKS - 1 });
+  assert.deepEqual(secondHop, { allow: false, nextPressTick: 111 });
+  assert.equal(decideOpeningPress({ currentTick: 114, previousPressTick: 111, canStart: true, airborneTicks: LONG_FALL_TICKS - 1 }).allow, true);
 });
 
 test("a duplicate press in the same tick cannot open or reset the pair", () => {
@@ -72,7 +72,10 @@ test("a wall impact blocks every opening press until landing", () => {
   assert.equal(decideOpeningPress({ currentTick: 130, canStart: true, airborneTicks: LONG_FALL_TICKS, wallLocked }).allow, true);
 });
 
-test("the activation window includes exactly eight ticks", () => {
-  assert.equal(decideOpeningPress({ currentTick: 108, previousPressTick: 100, canStart: true }).allow, true);
-  assert.equal(decideOpeningPress({ currentTick: 109, previousPressTick: 100, canStart: true }).allow, false);
+test("the second press is accepted through tick ten while still airborne", () => {
+  for (const currentTick of [108, 109, 110]) {
+    assert.equal(decideOpeningPress({ currentTick, previousPressTick: 100, canStart: true }).allow, true);
+  }
+  assert.equal(decideOpeningPress({ currentTick: 110, previousPressTick: 100, canStart: false }).allow, false);
+  assert.equal(decideOpeningPress({ currentTick: 111, previousPressTick: 100, canStart: true }).allow, false);
 });
